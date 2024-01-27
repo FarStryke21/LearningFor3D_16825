@@ -11,13 +11,14 @@ import pytorch3d
 import torch
 from PIL import Image, ImageDraw
 from tqdm.auto import tqdm
+from math import tan, radians
 
-from starter.utils import get_device, get_mesh_renderer
+from utils import get_device, get_mesh_renderer
 
 
 def dolly_zoom(
     image_size=256,
-    num_frames=10,
+    num_frames=20,
     duration=3,
     device=None,
     output_file="output/dolly.gif",
@@ -25,7 +26,7 @@ def dolly_zoom(
     if device is None:
         device = get_device()
 
-    mesh = pytorch3d.io.load_objs_as_meshes(["cow_on_plane/cow_on_plane.obj"])
+    mesh = pytorch3d.io.load_objs_as_meshes(["data/cow_on_plane.obj"])
     mesh = mesh.to(device)
     renderer = get_mesh_renderer(image_size=image_size, device=device)
     lights = pytorch3d.renderer.PointLights(location=[[0.0, 0.0, -3.0]], device=device)
@@ -34,8 +35,9 @@ def dolly_zoom(
 
     renders = []
     for fov in tqdm(fovs):
-        distance = 3  # TODO: change this.
-        T = [[0, 0, 3]]  # TODO: Change this.
+        width = 4.5
+        distance = width/(2*tan(radians(fov/2)))  # TODO: change this.
+        T = [[0, 0, distance]]  # TODO: Change this.
         cameras = pytorch3d.renderer.FoVPerspectiveCameras(fov=fov, T=T, device=device)
         rend = renderer(mesh, cameras=cameras, lights=lights)
         rend = rend[0, ..., :3].cpu().numpy()  # (N, H, W, 3)
