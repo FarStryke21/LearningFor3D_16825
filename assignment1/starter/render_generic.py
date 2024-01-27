@@ -15,7 +15,7 @@ import numpy as np
 import pytorch3d
 import torch
 
-from starter.utils import get_device, get_mesh_renderer, get_points_renderer
+from utils import get_device, get_mesh_renderer, get_points_renderer
 
 
 def load_rgbd_data(path="data/rgbd_data.pkl"):

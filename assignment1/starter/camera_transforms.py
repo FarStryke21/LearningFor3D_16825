@@ -9,7 +9,7 @@ import pytorch3d
 import torch
 import numpy as np
 
-from starter.utils import get_device, get_mesh_renderer
+from utils import get_device, get_mesh_renderer
 
 
 def render_cow(
