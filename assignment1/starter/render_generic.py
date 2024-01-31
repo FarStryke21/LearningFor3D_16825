@@ -15,7 +15,7 @@ import numpy as np
 import pytorch3d
 import torch
 
-from utils import get_device, get_mesh_renderer, get_points_renderer
+from starter.utils import get_device, get_mesh_renderer, get_points_renderer
 
 
 def load_rgbd_data(path="data/rgbd_data.pkl"):
@@ -41,6 +41,8 @@ def render_bridge(
     point_cloud = np.load(point_cloud_path)
     verts = torch.Tensor(point_cloud["verts"][::50]).to(device).unsqueeze(0)
     rgb = torch.Tensor(point_cloud["rgb"][::50]).to(device).unsqueeze(0)
+    print("verts", verts.shape)
+    print("rgb", rgb.shape)
     point_cloud = pytorch3d.structures.Pointclouds(points=verts, features=rgb)
     R, T = pytorch3d.renderer.look_at_view_transform(4, 10, 0)
     cameras = pytorch3d.renderer.FoVPerspectiveCameras(R=R, T=T, device=device)
