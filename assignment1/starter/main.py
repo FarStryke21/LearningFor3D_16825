@@ -216,50 +216,60 @@ def generateTorusMesh(image_size=256, voxel_size=64):
 
     return mesh
 
-def getVisibilityMatrix(mesh, camera):
-    vertices = mesh.verts_packed().unsqueeze(0)  # (N_v, 3) -> (1, N_v, 3)
-    texture = torch.ones_like(vertices)  # (1, N_v, 3)
-    texture = texture * torch.tensor([0.7, 0.7, 1])  # (1, N_v, 3)
-    point_cloud = pytorch3d.structures.Pointclouds(points = vertices,
-                                                   features = texture)
-    raster_settings = PointsRasterizationSettings(image_size=512, radius=0.01)
-    rasterizer = PointsRasterizer(cameras=camera, raster_settings=raster_settings)
+def findVisibilityMatrix(mesh = None, camera = None, image_size = 512, render = False):
+    if mesh == None or camera == None:
+        print("One or more required arguements missing\nAborting...")
+        return -1
+    # Extract vertices and faces from the mesh
+    vertices = mesh.verts_packed().cpu().numpy()
+    faces = mesh.faces_packed().cpu().numpy()
 
-    # Rasterize the point cloud to get visibility
-    point_fragments = rasterizer(point_cloud)
-    # Extract visible points
-    idx_data = point_fragments.idx
-    batch_size, image_size, _, points_per_pixel = idx_data.shape
-    idx_data_reshaped = idx_data.view(batch_size, image_size, image_size * points_per_pixel)
+    # Set up the rasterizer
+    raster_settings = RasterizationSettings(
+            image_size=image_size,
+            blur_radius=0.0,
+            faces_per_pixel=1,
+        )
+    rasterizer = MeshRasterizer(cameras=camera, raster_settings=raster_settings)
 
-    pass
+    # Extract the raster data. We do not need to forward it to the renderer
+    fragments = rasterizer.forward(mesh)
 
-def visibilityMatrix():
-    # Import the cow mesh
-    vertices, faces = load_cow_mesh("data/cow.obj")
-    mesh = pytorch3d.structures.Meshes([vertices], [faces])
-    # define two cameras
-    R1, T1 = pytorch3d.renderer.look_at_view_transform(dist = 2, elev = 30, azim = 0)
-    camera = pytorch3d.renderer.FoVPerspectiveCameras(R=R1, T=T1)
+    # Extracy visible mesh elements using the pix_to_face attribute
+    N = 0
+    k = 0
+    face_list = list(
+                    sorted(
+                        set(
+                            [int(fragments.pix_to_face[N, y, x, k])
+                                for x in range(0, image_size)
+                                for y in range(0, image_size)
+                                if int(fragments.pix_to_face[N, y, x, k]) != -1]
+                        )))
 
-    vis_matrix = getVisibilityMatrix(mesh, camera)
-    # Choose a random color and make areas visible to the camera of that color
-    color = torch.tensor([1, 0, 0])
-    texture = torch.ones_like(mesh.verts_packed().unsqueeze(0))  # (1, N_v, 3)
-    texture = texture * torch.tensor([0.7, 0.7, 1])  # (1, N_v, 3)
-    # Give this color to those elements that are visible to the camera
-    texture[vis_matrix == 1] = color
+    # get the corresponding visaible vertices and clean up
+    vertex_list = []
+    for i in face_list:
+        vertices_for_element = faces[i]
+        vertex_list.extend(vertices_for_element)
+    vertex_list = list(sorted(set(vertex_list)))
 
-    mesh.textures = pytorch3d.renderer.TexturesVertex(texture)
+    # Render the scene of needed
+    if render:
+        texture_base = torch.ones_like(mesh.verts_packed().cpu()) # N X 3
+        texture = texture_base.cpu() * torch.tensor([0.5, 0.5, 1]).cpu()
+        texture[vertex_list] = torch.tensor([1.0, 0, 0])
+        texture = pytorch3d.renderer.TexturesVertex(texture.unsqueeze(0))
+        mesh.textures = texture
+        fig = plot_scene({
+            "Figure 1":{
+                "Mesh": mesh,
+                "Camera": camera
+            }
+        })
+        fig.show()
 
-    fig = plot_scene({
-        "Visibility":{
-        "camera": camera,
-        "mesh": mesh,
-        }
-    })
-
-    fig.show()
+    return vertex_list
 
 if __name__ == "__main__":
     # # Question 1.1
@@ -358,7 +368,39 @@ if __name__ == "__main__":
     # Question 6
     # The idea here is to create a function that can return a visility matrix for a given point cloud from a given camera position
     # This function has direct relation to my research work and that is why I have chosen to implement it here
-    visibilityMatrix()
+    image_size = 512
+
+    renderer = get_mesh_renderer(image_size=512)
+    img_list = []
+
+    vertices, faces = utils.load_cow_mesh(path="data/cow.obj")
+    mesh = pytorch3d.structures.Meshes(verts=vertices.unsqueeze(0), faces=faces.unsqueeze(0))
+    increment = 10
+    for i in tqdm(range(0, 360+1, increment)):
+        # For Camera 1
+        R, T = pytorch3d.renderer.look_at_view_transform(dist = 2, elev = 0, azim = i)
+        camera1 = pytorch3d.renderer.FoVPerspectiveCameras(R=R, T=T)
+
+        # For Camera 2
+        R, T = pytorch3d.renderer.look_at_view_transform(dist = 5, elev = 30, azim = i - increment)
+        camera2 = pytorch3d.renderer.FoVPerspectiveCameras(R=R, T=T) 
+
+        visMat = findVisibilityMatrix(mesh = mesh, camera = camera1, render = False)
+        texture_base = torch.ones_like(mesh.verts_packed().cpu()) # N X 3
+        texture = texture_base.cpu() * torch.tensor([0.5, 0.5, 1]).cpu()
+        texture[visMat] = torch.tensor([1.0, 0, 0])
+        texture = pytorch3d.renderer.TexturesVertex(texture.unsqueeze(0))
+        mesh.textures = texture
+
+        image = renderer(mesh, cameras=camera2)
+        image = image.cpu().numpy()[0, ..., :3]
+        img_list.append(Image.fromarray((image * 255).astype(np.uint8)))
+
+    imageio.mimsave("results/visibility.gif", img_list, fps=5)
+
+
+
+
 
 
 
