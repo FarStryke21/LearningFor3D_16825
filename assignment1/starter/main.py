@@ -8,21 +8,14 @@ from PIL import Image, ImageDraw
 import pickle 
 import mcubes
 from pytorch3d.vis.plotly_vis import plot_scene
-from pytorch3d.renderer import (
-    AlphaCompositor,
-    RasterizationSettings,
-    MeshRenderer,
-    MeshRasterizer,
-    PointsRasterizationSettings,
-    PointsRenderer,
-    PointsRasterizer,
-    HardPhongShader,
-)
+from pytorch3d.renderer import (RasterizationSettings,MeshRasterizer,)
+from math import tan, radians
+import torch.distributions as dist
 
 
-import utils as utils
-import dolly_zoom as dolly_zoom
-from camera_transforms import render_cow
+# import utils as utils
+# import dolly_zoom as dolly_zoom
+# from camera_transforms import render_cow
 # from render_generic import *
 
 import os
@@ -33,6 +26,18 @@ def load_rgbd_data(path="data/rgbd_data.pkl"):
     with open(path, "rb") as f:
         data = pickle.load(f)
     return data
+
+def load_cow_mesh(path="data/cow_mesh.obj"):
+    """
+    Loads vertices and faces from an obj file.
+
+    Returns:
+        vertices (torch.Tensor): The vertices of the mesh (N_v, 3).
+        faces (torch.Tensor): The faces of the mesh (N_f, 3).
+    """
+    vertices, faces, _ = load_obj(path)
+    faces = faces.verts_idx
+    return vertices, faces
 
 def render(R, T, model=([], []), image_size=256, color=[0.7, 0.7, 1], device=None, textures=None):
     if device is None:
@@ -87,6 +92,66 @@ def render360(filepath, camera_dist = 3, elevation = 30, azimuth = 360, model="d
 
     # print(len(img_list))
     imageio.mimsave(filepath, img_list, fps=10)
+
+def dolly_zoom(
+    image_size=256,
+    num_frames=20,
+    duration=3,
+    device=None,
+    output_file="output/dolly.gif",
+):
+    if device is None:
+        device = get_device()
+
+    mesh = pytorch3d.io.load_objs_as_meshes(["data/cow_on_plane.obj"])
+    mesh = mesh.to(device)
+    renderer = get_mesh_renderer(image_size=image_size, device=device)
+    lights = pytorch3d.renderer.PointLights(location=[[0.0, 0.0, -3.0]], device=device)
+
+    fovs = torch.linspace(5, 120, num_frames)
+
+    renders = []
+    for fov in tqdm(fovs):
+        width = 4.5
+        distance = width/(2*tan(radians(fov/2)))  # TODO: change this.
+        T = [[0, 0, distance]]  # TODO: Change this.
+        cameras = pytorch3d.renderer.FoVPerspectiveCameras(fov=fov, T=T, device=device)
+        rend = renderer(mesh, cameras=cameras, lights=lights)
+        rend = rend[0, ..., :3].cpu().numpy()  # (N, H, W, 3)
+        renders.append(rend)
+
+    images = []
+    for i, r in enumerate(renders):
+        image = Image.fromarray((r * 255).astype(np.uint8))
+        draw = ImageDraw.Draw(image)
+        draw.text((20, 20), f"fov: {fovs[i]:.2f}", fill=(255, 0, 0))
+        images.append(np.array(image))
+    imageio.mimsave(output_file, images, fps=(num_frames / duration))
+
+def render_cow(
+    cow_path="data/cow_with_axis.obj",
+    image_size=256,
+    R_relative=[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+    T_relative=[0, 0, 0],
+    device=None,
+):
+    if device is None:
+        device = get_device()
+    meshes = pytorch3d.io.load_objs_as_meshes([cow_path]).to(device)
+
+    R_relative = torch.tensor(R_relative).float()
+    T_relative = torch.tensor(T_relative).float()
+    R = R_relative @ torch.tensor([[1.0, 0, 0], [0, 1, 0], [0, 0, 1]])
+    T = R_relative @ torch.tensor([0.0, 0, 3]) + T_relative
+    # since the pytorch3d internal uses Point= point@R+t instead of using Point=R @ point+t,
+    # we need to add R.t() to compensate that.
+    renderer = get_mesh_renderer(image_size=image_size)
+    cameras = pytorch3d.renderer.FoVPerspectiveCameras(
+        R=R.t().unsqueeze(0), T=T.unsqueeze(0), device=device,
+    )
+    lights = pytorch3d.renderer.PointLights(location=[[0, 0.0, -3.0]], device=device,)
+    rend = renderer(meshes, cameras=cameras, lights=lights)
+    return rend[0, ..., :3].cpu().numpy()
 
 def generateTetrahedron():
     vertices = torch.tensor([
@@ -160,11 +225,14 @@ def render_pointcloud(points = None, colors = None, R = None, T = None,
     return rend
 
 
-def renderpointcloud_360(points = [], colors = [], filepath = "results/pointcloud.gif", image_size = 256, flip = False):
+def renderpointcloud_360(points = [], colors = [], filepath = "results/pointcloud.gif", image_size = 256, flip = False, dist = 3):
     img_list = []
+    if colors == []:
+        colors = torch.ones_like(points)
+    
     print("Rendering a 360 degree view of the model ....")
     for i in tqdm(range(0, 360+1, 10)):
-        R, T = pytorch3d.renderer.look_at_view_transform(dist = 7, elev = 30, azim = i)
+        R, T = pytorch3d.renderer.look_at_view_transform(dist = dist, elev = 30, azim = i)
         if flip:
             # Rotate the R about the Z axis by 180 degrees
             R = torch.tensor([
@@ -198,11 +266,43 @@ def generateTorus(num_samples = 100):
 
     return points, color
 
+# function that performs sampling on the parametric function of a trefoil knot
+def trefoilKnot(num_samples = 100):
+    R = torch.linspace(0, 1, num_samples)
+    phi = torch.linspace(0, 2 * np.pi, num_samples)
+
+    R, phi = torch.meshgrid(R, phi)
+
+    x = R*(torch.sin(phi) + 2 * torch.sin(2 * phi))
+    y = R*(torch.cos(phi) - 2 * torch.cos(2 * phi))
+    z = R*(-torch.sin(3 * phi))
+    points = torch.stack((x.flatten(), y.flatten(), z.flatten()), dim=1)
+    color = (points - points.min()) / (points.max() - points.min())
+    return points, color
+
 def generateTorusMesh(image_size=256, voxel_size=64):
     min_value = -3.1
     max_value = 3.1
     X, Y, Z = torch.meshgrid([torch.linspace(min_value, max_value, voxel_size)] * 3)
     voxels = (X**2 + Y**2 + Z**2 + 4 - 1)**2 - 16 * (X**2 + Y**2)
+    vertices, faces = mcubes.marching_cubes(mcubes.smooth(voxels), isovalue=0)
+    vertices = torch.tensor(vertices).float()
+    faces = torch.tensor(faces.astype(int))
+    # Vertex coordinates are indexed by array position, so we need to
+    # renormalize the coordinate system.
+    vertices = (vertices / voxel_size) * (max_value - min_value) + min_value
+    textures = (vertices - vertices.min()) / (vertices.max() - vertices.min())
+    textures = pytorch3d.renderer.TexturesVertex(vertices.unsqueeze(0))
+
+    mesh = pytorch3d.structures.Meshes([vertices], [faces], textures=textures)
+
+    return mesh
+
+def generateGenusMesh(image_size=256, voxel_size=64):
+    min_value = -3.1
+    max_value = 3.1
+    X, Y, Z = torch.meshgrid([torch.linspace(min_value, max_value, voxel_size)] * 3)
+    voxels = 2*Y*(Y*Y - 3*X*X)*(1 - Z*Z) + (X*X + Y*Y)**2 - (9*Z*Z - 1)*(1 - Z*Z)**3
     vertices, faces = mcubes.marching_cubes(mcubes.smooth(voxels), isovalue=0)
     vertices = torch.tensor(vertices).float()
     faces = torch.tensor(faces.astype(int))
@@ -271,99 +371,143 @@ def findVisibilityMatrix(mesh = None, camera = None, image_size = 512, render = 
 
     return vertex_list
 
+def generate_point_cloud(mesh, num_samples=100):
+    # Convert faces to triplets
+    vertices,faces = mesh
+    faces = faces.numpy()
+    
+    cross_product = torch.cross(vertices[faces[:, 1]] - vertices[faces[:, 0]], 
+                             vertices[faces[:, 2]] - vertices[faces[:, 0]])
+    face_areas = 0.5 * torch.norm(cross_product, dim=1)
+    total_area = torch.sum(face_areas)
+
+    # Calculate probabilities for each face based on their areas
+    face_probs = face_areas / total_area
+
+     # Create a discrete random variable for face selection
+    face_rv = dist.Categorical(face_probs)
+
+    # Initialize tensors to store sampled points
+    sampled_points = torch.zeros((num_samples, 3), dtype=vertices.dtype)
+
+    # Sample points using stratified sampling
+    for i in range(num_samples):
+        # Step 1: Sample a face with probability proportional to its area
+        selected_face_index = face_rv.sample()
+
+        # Step 2: Sample random barycentric coordinates
+        barycentric_coords = torch.rand(2)
+        barycentric_coords /= torch.sum(barycentric_coords)
+
+        # Step 3: Compute the corresponding point using barycentric coordinates
+        selected_face = faces[selected_face_index]
+        sampled_point = (1 - barycentric_coords[0] - barycentric_coords[1]) * vertices[selected_face[0]] \
+                        + barycentric_coords[0] * vertices[selected_face[1]] \
+                        + barycentric_coords[1] * vertices[selected_face[2]]
+
+        sampled_points[i] = sampled_point
+
+    return sampled_points
+
+
+
 if __name__ == "__main__":
-    # # Question 1.1
-    # print("Solution for Question 1.1 ...")
-    # render360('results/cow_360.gif')
+    # Question 1.1
+    print("Solution for Question 1.1 ...")
+    render360('results/cow_360.gif')
 
-    # # Question 1.2
-    # print("Solution for Question 1.2 ...")
-    # dolly_zoom.dolly_zoom(output_file="results/dolly_zoom.gif")
+    # Question 1.2
+    print("Solution for Question 1.2 ...")
+    dolly_zoom(output_file="results/dolly_zoom.gif")
 
-    # # Question 2.1
-    # print("Solution for Question 2.1 ...")
-    # model = generateTetrahedron()
-    # render360('results/tetrahedron_360.gif', model=model)
+    # Question 2.1
+    print("Solution for Question 2.1 ...")
+    model = generateTetrahedron()
+    render360('results/tetrahedron_360.gif', model=model)
 
-    # # Question 2.2
-    # print("Solution for Question 2.2 ...")
-    # model = generateCube()
-    # render360('results/cube_360.gif', model=model)
+    # Question 2.2
+    print("Solution for Question 2.2 ...")
+    model = generateCube()
+    render360('results/cube_360.gif', model=model)
 
     # Question 3
-    # model = load_cow_mesh("data/cow.obj")
-    # textures = retexturing(model=model)
-    # render360('results/cow_360_retextured.gif', model=model, textures=textures)
+    model = load_cow_mesh("data/cow.obj")
+    textures = retexturing(model=model)
+    render360('results/cow_360_retextured.gif', model=model, textures=textures)
 
-    # # Question 4
-    # # Image 1 - Rotate camera anti-clockwise 90 degrees along the Z axis
-    # R1 = torch.tensor([
-    #     [0, -1, 0],
-    #     [1, 0, 0],
-    #     [0, 0, 1]
-    # ])
-    # T1 = torch.tensor([0, 0, 0]) 
-    # plt.imsave("results/Q4_img1.jpg", render_cow(R_relative=R1, T_relative=T1))
+    # Question 4
+    # Image 1 - Rotate camera anti-clockwise 90 degrees along the Z axis
+    R1 = torch.tensor([
+        [0, -1, 0],
+        [1, 0, 0],
+        [0, 0, 1]
+    ])
+    T1 = torch.tensor([0, 0, 0]) 
+    plt.imsave("results/Q4_img1.jpg", render_cow(R_relative=R1, T_relative=T1))
 
-    # # Image 2 - Zoom out by a factor of 2
-    # R2 = torch.tensor([
-    #     [1, 0, 0],
-    #     [0, 1, 0],
-    #     [0, 0, 1]
-    # ])
-    # T2 = torch.tensor([0, 0, 3])
-    # plt.imsave("results/Q4_img2.jpg", render_cow(R_relative=R2, T_relative=T2))
+    # Image 2 - Zoom out by a factor of 2
+    R2 = torch.tensor([
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+    ])
+    T2 = torch.tensor([0, 0, 3])
+    plt.imsave("results/Q4_img2.jpg", render_cow(R_relative=R2, T_relative=T2))
 
-    # # Image 3 - Translate the camera by 0.5 unit along the X axis and Y axis
-    # R3 = torch.tensor([
-    #     [1, 0, 0],
-    #     [0, 1, 0],
-    #     [0, 0, 1]
-    # ])
-    # T3 = torch.tensor([0.5, -0.5, 0])
-    # plt.imsave("results/Q4_img3.jpg", render_cow(R_relative=R3, T_relative=T3))
+    # Image 3 - Translate the camera by 0.5 unit along the X axis and Y axis
+    R3 = torch.tensor([
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+    ])
+    T3 = torch.tensor([0.5, -0.5, 0])
+    plt.imsave("results/Q4_img3.jpg", render_cow(R_relative=R3, T_relative=T3))
 
-    # # Image 4 - Rotate camera clockwise 90 degrees along the Y axis of the cow
-    # R4 = torch.tensor([
-    #     [0, 0, -1],
-    #     [0, 1, 0],
-    #     [1, 0, 0]
-    # ])
-    # T4 = torch.tensor([3, 0, 3])
-    # plt.imsave("results/Q4_img4.jpg", render_cow(R_relative=R4, T_relative=T4))
+    # Image 4 - Rotate camera clockwise 90 degrees along the Y axis of the cow
+    R4 = torch.tensor([
+        [0, 0, -1],
+        [0, 1, 0],
+        [1, 0, 0]
+    ])
+    T4 = torch.tensor([3, 0, 3])
+    plt.imsave("results/Q4_img4.jpg", render_cow(R_relative=R4, T_relative=T4))
 
-    # # Question 5.1
-    # data = load_rgbd_data()
-    # # Split the data into respective images
-    # data1 = {}
-    # data2 = {}
-    # for key in data:
-    #     if key[-1]  == '1':
-    #         data1[key[:-1]] = data[key]
-    #     else:
-    #         data2[key[:-1]] = data[key]
+    # Question 5.1
+    data = load_rgbd_data()
+    # Split the data into respective images
+    data1 = {}
+    data2 = {}
+    for key in data:
+        if key[-1]  == '1':
+            data1[key[:-1]] = data[key]
+        else:
+            data2[key[:-1]] = data[key]
     
-    # point1, color1 = unproject_depth_image(torch.tensor(data1['rgb']), torch.tensor(data1['mask']), torch.tensor(data1['depth']), data1['cameras'])
-    # point2, color2 = unproject_depth_image(torch.tensor(data2['rgb']), torch.tensor(data2['mask']), torch.tensor(data2['depth']), data2['cameras'])
+    point1, color1 = unproject_depth_image(torch.tensor(data1['rgb']), torch.tensor(data1['mask']), torch.tensor(data1['depth']), data1['cameras'])
+    point2, color2 = unproject_depth_image(torch.tensor(data2['rgb']), torch.tensor(data2['mask']), torch.tensor(data2['depth']), data2['cameras'])
 
-    # renderpointcloud_360(points = point1, colors = color1, filepath = "results/pointcloud1.gif", flip = True)
-    # renderpointcloud_360(points = point2, colors = color2, filepath = "results/pointcloud2.gif", flip = True)
+    renderpointcloud_360(points = point1, colors = color1, filepath = "results/pointcloud1.gif", flip = True, depth = 7)
+    renderpointcloud_360(points = point2, colors = color2, filepath = "results/pointcloud2.gif", flip = True, depth = 7)
 
-    # pointcloud1 = pytorch3d.structures.Pointclouds(points=point1.unsqueeze(0), features=color1.unsqueeze(0))
-    # pointcloud2 = pytorch3d.structures.Pointclouds(points=point2.unsqueeze(0), features=color2.unsqueeze(0))
-    # pointcloud3 = pytorch3d.structures.join_pointclouds_as_scene([pointcloud1, pointcloud2])
+    pointcloud1 = pytorch3d.structures.Pointclouds(points=point1.unsqueeze(0), features=color1.unsqueeze(0))
+    pointcloud2 = pytorch3d.structures.Pointclouds(points=point2.unsqueeze(0), features=color2.unsqueeze(0))
+    pointcloud3 = pytorch3d.structures.join_pointclouds_as_scene([pointcloud1, pointcloud2])
 
-    # renderpointcloud_360(points = pointcloud3.points_list()[0], 
-    #                      colors = pointcloud3.features_list()[0],
-    #                        filepath = "results/pointcloud3.gif", flip = True)
+    renderpointcloud_360(points = pointcloud3.points_list()[0], 
+                         colors = pointcloud3.features_list()[0],
+                           filepath = "results/pointcloud3.gif", flip = True, depth = 7)
 
-    # # Question 5.2
-    # points, color = generateTorus(num_samples=200)
-    # renderpointcloud_360(points = points, colors = color, filepath = "results/torus_parametric.gif")
+    # Question 5.2
+    points, color = generateTorus(num_samples=200)
+    renderpointcloud_360(points = points, colors = color, filepath = "results/torus_parametric.gif", depth = 7)
+    points, color = trefoilKnot(num_samples=200)
+    renderpointcloud_360(points = points, colors = color, filepath = "results/trefoil_knot.gif", depth = 7)
 
-    # # Question 5.3
-    # mesh = generateTorusMesh()
-    # render360('results/torus_implicit.gif', camera_dist=7, model=(mesh.verts_padded().squeeze(0), mesh.faces_padded().squeeze(0)))
+    # Question 5.3
+    mesh = generateTorusMesh()
+    render360('results/torus_implicit.gif', camera_dist=7, model=(mesh.verts_padded().squeeze(0), mesh.faces_padded().squeeze(0)))
+    mesh = generateGenusMesh()
+    render360('results/genus_implicit.gif', camera_dist=5, model=(mesh.verts_padded().squeeze(0), mesh.faces_padded().squeeze(0)))
 
     # Question 6
     # The idea here is to create a function that can return a visility matrix for a given point cloud from a given camera position
@@ -373,7 +517,7 @@ if __name__ == "__main__":
     renderer = get_mesh_renderer(image_size=512)
     img_list = []
 
-    vertices, faces = utils.load_cow_mesh(path="data/cow.obj")
+    vertices, faces = load_cow_mesh(path="data/cow.obj")
     mesh = pytorch3d.structures.Meshes(verts=vertices.unsqueeze(0), faces=faces.unsqueeze(0))
     increment = 10
     for i in tqdm(range(0, 360+1, increment)):
@@ -398,14 +542,13 @@ if __name__ == "__main__":
 
     imageio.mimsave("results/visibility.gif", img_list, fps=5)
 
-
-
-
-
-
-
-
-
-
-
-
+    # Question 7
+    mesh = load_cow_mesh("data/cow.obj")
+    point_cloud = generate_point_cloud(mesh, num_samples=10)
+    renderpointcloud_360(points = point_cloud, filepath = "results/sample10.gif")
+    point_cloud = generate_point_cloud(mesh, num_samples=100)
+    renderpointcloud_360(points = point_cloud, filepath = "results/sample100.gif")
+    point_cloud = generate_point_cloud(mesh, num_samples=1000)
+    renderpointcloud_360(points = point_cloud, filepath = "results/sample1000.gif")
+    point_cloud = generate_point_cloud(mesh, num_samples=10000)
+    renderpointcloud_360(points = point_cloud, filepath = "results/sample10000.gif")
