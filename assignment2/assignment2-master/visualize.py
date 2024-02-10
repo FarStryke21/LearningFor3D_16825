@@ -97,8 +97,8 @@ def visualize_pcd(point_cloud_src,
     ).to(device)
 
     renderer = get_points_renderer(image_size=image_size,
-                                    device=device,
-                                    background_color=background_color)
+                                    device=device) #,
+                                    # background_color=background_color)
     lights = pytorch3d.renderer.PointLights(location=[[0, 0, -3]],
                                             device=device)
 
