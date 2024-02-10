@@ -86,9 +86,9 @@ def fit_pointcloud(pointclouds_src, pointclouds_tgt, args):
 
         print("[%4d/%4d]; ttime: %.0f (%.2f); loss: %.3f" % (step, args.max_iter, total_time,  iter_time, loss_vis))
     
-    
-    visualize_pcd(pointclouds_src, output_path='results/1_pcdsrc.gif')
-    visualize_pcd(pointclouds_tgt, output_path='results/1_pcdtgt.gif')
+    print(f"Size of src : {pointclouds_src.shape} | tgt : {pointclouds_tgt.shape}") 
+    visualize_pcd(pointclouds_src.squeeze(0), output_path='results/1_pcdsrc.gif')
+    visualize_pcd(pointclouds_tgt.squeeze(0), output_path='results/1_pcdtgt.gif')
 
     print('Done!')
 
