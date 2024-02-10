@@ -10,9 +10,9 @@ def voxel_loss(voxel_src,voxel_tgt):
 	voxel_tgt_new = voxel_tgt.view(voxel_tgt.size(0),-1)
 
 	# Implement loss
-        loss_obj = torch.nn.BCEWithLogitsLoss()
+	loss_obj = torch.nn.BCEWithLogitsLoss()
 	# implement some loss for binary voxel grids
-        loss = loss_obj(voxel_src_new, voxel_tgt_new)
+	loss = loss_obj(voxel_src_new, voxel_tgt_new)
 	return loss
 
 def chamfer_loss(point_cloud_src,point_cloud_tgt):
