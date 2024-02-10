@@ -12,6 +12,9 @@ import mcubes
 import utils_vox
 import matplotlib.pyplot as plt 
 
+import numoy as np
+
+from visualize import *
 def get_args_parser():
     parser = argparse.ArgumentParser('Singleto3D', add_help=False)
     parser.add_argument('--arch', default='resnet18', type=str)
@@ -156,11 +159,40 @@ def evaluate_model(args):
         metrics = evaluate(predictions, mesh_gt, thresholds, args)
 
         # TODO:
-        # if (step % args.vis_freq) == 0:
-        #     # visualization block
-        #     #  rend = 
-        #     plt.imsave(f'vis/{step}_{args.type}.png', rend)
+        if (step % args.vis_freq) == 0:
+            # visualization block
+            #  rend = 
+            # plt.imsave(f'vis/{step}_{args.type}.png', rend)
+            images_gt = images_gt.cpu().numpy().squeeze(0)
       
+            if args.type == 'vox' or args.type == 'implicit':
+                    # visualize prediction
+                    visualize_voxel(predictions[0].cpu().detach(),
+                                    output_path=f'vis/{step}_{args.type}.gif')
+                
+                    plt.imsave(f'vis/gt_img_{step}.png', images_gt)
+
+            elif args.type == 'point':
+                visualize_pcd(predictions[0].cpu().detach(),
+                            output_path=f'vis/{step}_{args.type}.gif')
+                # visualize gt voxel
+                visualize_pcd(mesh_gt.cpu().detach(),
+                                output_path=f'vis/gt_pcd_{step}.gif')
+                # save original image
+                plt.imsave(f'vis/gt_img_{step}.png', images_gt)
+            
+            elif args.type == 'mesh':
+                # visualize prediction
+                visualize_mesh(predictions.cpu().detach(),
+                            output_path=f'vis/{step}_{args.type}.gif')
+                # visualize gt mesh
+                visualize_mesh(mesh_gt.cpu().detach(),
+                                output_path=f'vis/gt_mesh_{step}.gif')
+                # save original image
+                # images_gt = images_gt.detach().cpu().numpy().astype(np.uint8).squeeze(1) # added to move to cuda
+                print(images_gt)
+                # images_gt = images_gt.detach().cpu().numpy().astype(np.uint8) # added to move to cuda
+                plt.imsave(f'vis/gt_img_{step}.png', images_gt)
 
         total_time = time.time() - start_time
         iter_time = time.time() - iter_start_time
