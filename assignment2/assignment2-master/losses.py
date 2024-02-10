@@ -10,7 +10,7 @@ def voxel_loss(voxel_src,voxel_tgt):
 	voxel_tgt_new = voxel_tgt.view(voxel_tgt.shape[0],-1)
 
 	# Implement loss
-	loss = torch.nn.BCELoss(voxel_src_new,voxel_tgt_new)
+	loss = torch.nn.BCEWithLogitsLoss(voxel_src_new,voxel_tgt_new)
 	# implement some loss for binary voxel grids
 	return loss
 

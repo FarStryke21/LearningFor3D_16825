@@ -9,7 +9,7 @@ from pytorch3d.ops import sample_points_from_meshes
 from pytorch3d.structures import Meshes
 import dataset_location
 import torch
-
+from visualize import *
 
 
 
@@ -59,6 +59,10 @@ def fit_mesh(mesh_src, mesh_tgt, args):
     
     mesh_src.offset_verts_(deform_vertices_src)
 
+    # visualize and save mesh to compare
+    visualize_mesh(mesh_src, output_path='results/1_meshsrc.gif')
+    visualize_mesh(mesh_tgt, output_path='results/1_meshtgt.gif')
+
     print('Done!')
 
 
@@ -82,6 +86,10 @@ def fit_pointcloud(pointclouds_src, pointclouds_tgt, args):
 
         print("[%4d/%4d]; ttime: %.0f (%.2f); loss: %.3f" % (step, args.max_iter, total_time,  iter_time, loss_vis))
     
+    
+    visualize_pcd(pointclouds_src, output_path='results/1_pcdsrc.gif')
+    visualize_pcd(pointclouds_tgt, output_path='results/1_pcdtgt.gif')
+
     print('Done!')
 
 
@@ -105,6 +113,8 @@ def fit_voxel(voxels_src, voxels_tgt, args):
 
         print("[%4d/%4d]; ttime: %.0f (%.2f); loss: %.3f" % (step, args.max_iter, total_time,  iter_time, loss_vis))
     
+    visualize_voxel(voxels_src, output_path='results/1_voxelsrc.gif')
+    visualize_voxel(voxels_tgt, output_path='results/1_voxeltgt.gif')
     print('Done!')
 
 
