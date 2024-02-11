@@ -163,7 +163,7 @@ def evaluate_model(args):
             # visualization block
             #  rend = 
             # plt.imsave(f'vis/{step}_{args.type}.png', rend)
-            images_gt = images_gt.cpu().numpy()
+            images_gt = images_gt.cpu().numpy().squeeze(0).reshape(32,16)
             print(images_gt.shape)
             if args.type == 'vox' or args.type == 'implicit':
                     # visualize prediction
