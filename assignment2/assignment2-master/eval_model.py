@@ -12,7 +12,7 @@ import mcubes
 import utils_vox
 import matplotlib.pyplot as plt 
 
-import numoy as np
+import numpy as np
 
 from visualize import *
 def get_args_parser():
@@ -163,8 +163,8 @@ def evaluate_model(args):
             # visualization block
             #  rend = 
             # plt.imsave(f'vis/{step}_{args.type}.png', rend)
-            images_gt = images_gt.cpu().numpy().squeeze(0)
-      
+            images_gt = images_gt.cpu().numpy()
+            print(images_gt.shape)
             if args.type == 'vox' or args.type == 'implicit':
                     # visualize prediction
                     visualize_voxel(predictions[0].cpu().detach(),
