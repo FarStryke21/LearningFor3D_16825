@@ -177,7 +177,7 @@ def evaluate_model(args):
                     visualize_pcd(predictions[0].cpu().detach(),
                                 output_path=f'vis/{step}_{args.type}.gif')
                     # visualize gt voxel
-                    visualize_pcd(mesh_gt.cpu().detach(),
+                    visualize_mesh(mesh_gt.cpu().detach(),
                                     output_path=f'vis/gt_pcd_{step}.gif')
                     # save original image
                     plt.imsave(f'vis/gt_img_{step}.png', images_gt)
@@ -206,7 +206,7 @@ def evaluate_model(args):
 
             print("[%4d/%4d]; ttime: %.0f (%.2f, %.2f); F1@0.05: %.3f; Avg F1@0.05: %.3f" % (step, max_iter, total_time, read_time, iter_time, f1_05, torch.tensor(avg_f1_score_05).mean()))
         except Exception as e:
-            pass
+            print(e)
     
 
     avg_f1_score = torch.stack(avg_f1_score).mean(0)
