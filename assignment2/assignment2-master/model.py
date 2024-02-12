@@ -130,15 +130,34 @@ class SingleViewto3D(nn.Module):
             # You will need to create a meshgrid of 32x32x32 in the normalized coordinate space of (-1,1)^3 to predict the full occupancy output.
             # It does not perform any form of normalization.
             
-            self.decoder =  nn.Sequential(
-                ResnetBlockFC(128, 128, size_h=None),
-                ResnetBlockFC(128, 128, size_h=None),
-                ResnetBlockFC(128, 128, size_h=None),
-                ResnetBlockFC(128, 128, size_h=None),
-                ResnetBlockFC(128, 128, size_h=None),
+            # self.decoder =  nn.Sequential(
+            #     ResnetBlockFC(128, 128, size_h=None),
+            #     ResnetBlockFC(128, 128, size_h=None),
+            #     ResnetBlockFC(128, 128, size_h=None),
+            #     ResnetBlockFC(128, 128, size_h=None),
+            #     ResnetBlockFC(128, 128, size_h=None),
+            #     nn.ReLU(),
+            #     nn.Linear(128, 1),
+            # )
+
+            self.num_image_features = 512
+            self.num_coords = args.n_points
+
+            # Fully connected layer for image features
+            self.fc_encoded = nn.Linear(self.num_image_features, 256)
+            
+            # Fully connected layers for coordinates
+            self.fc_coords = nn.Linear(self.num_coords * 3, 256)
+
+            # Combined fully connected layers
+            self.fc_combined = nn.Sequential(
+                nn.Linear(256 * 2, 512),
                 nn.ReLU(),
-                nn.Linear(128, 1),
-            )             
+                nn.Linear(512, 256),
+                nn.ReLU(),
+                nn.Linear(256, 1)
+            )
+             
 
     def forward(self, images, args):
         results = dict()
@@ -158,7 +177,7 @@ class SingleViewto3D(nn.Module):
         if args.type == "vox":
             # TODO:
             voxels_pred = self.decoder(encoded_feat)   # b x 1 x 2 x 2 x 2
-            print(f'voxel pred : {voxels_pred.shape}')            
+            # print(f'voxel pred : {voxels_pred.shape}')            
             return voxels_pred
 
         elif args.type == "point":
@@ -173,16 +192,31 @@ class SingleViewto3D(nn.Module):
             return  mesh_pred          
 
         elif args.type == "implicit":
-            self.n_coords = args.n_coords # default=2048
-            self.fc_p = nn.Linear(3*self.n_coords, 128)
-            self.fc_c = nn.Linear(512, 128)
+            # Process encoded features
+            encoded_feat = self.fc_encoded(encoded_feat)
+            encoded_feat = nn.ReLU()(encoded_feat)
 
-            self.sample_p = 2 * torch.rand((B, self.num_coords * 3)) - 1
+            # Process coordinates
+            coordinates = self.fc_coords(coordinates)
+            coordinates = nn.ReLU()(coordinates)
 
-            net = self.fc_p(self.sample_p)
-            net_c = self.fc_c(encoded_feat).unsqueeze(1)
-            net = net + net_c
+            # Concatenate encoded features and coordinates
+            combined = torch.cat((encoded_feat, coordinates), dim=1)
 
-            implicit_pred = self.decoder(net).squeeze(-1)
+            # Pass through combined fully connected layers
+            occupancy = self.fc_combined(combined)
 
-            return implicit_pred
+            return occupancy
+            # self.n_coords = args.n_coords # default=2048
+            # self.fc_p = nn.Linear(3*self.n_coords, 128)
+            # self.fc_c = nn.Linear(512, 128)
+
+            # self.sample_p = 2 * torch.rand((B, self.num_coords * 3)) - 1
+
+            # net = self.fc_p(self.sample_p)
+            # net_c = self.fc_c(encoded_feat).unsqueeze(1)
+            # net = net + net_c
+
+            # implicit_pred = self.decoder(net).squeeze(-1)
+
+            # return implicit_pred

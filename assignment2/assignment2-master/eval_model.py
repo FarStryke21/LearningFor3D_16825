@@ -170,7 +170,8 @@ def evaluate_model(args):
                         # visualize prediction
                         visualize_voxel(predictions[0].cpu().detach(),
                                         output_path=f'vis/{step}_{args.type}.gif')
-                    
+                        visualize_mesh(mesh_gt.cpu().detach(),
+                                    output_path=f'vis/gt_pcd_{step}.gif')
                         plt.imsave(f'vis/gt_img_{step}.png', images_gt)
 
                 elif args.type == 'point':
@@ -191,7 +192,7 @@ def evaluate_model(args):
                                     output_path=f'vis/gt_mesh_{step}.gif')
                     # save original image
                     # images_gt = images_gt.detach().cpu().numpy().astype(np.uint8).squeeze(1) # added to move to cuda
-                    print(images_gt)
+                    # print(images_gt)
                     # images_gt = images_gt.detach().cpu().numpy().astype(np.uint8) # added to move to cuda
                     plt.imsave(f'vis/gt_img_{step}.png', images_gt)
 
