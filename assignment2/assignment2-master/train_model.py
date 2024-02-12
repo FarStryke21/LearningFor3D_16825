@@ -19,7 +19,7 @@ def get_args_parser():
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--num_workers", default=4, type=int)
     parser.add_argument(
-        "--type", default="vox", choices=["vox", "point", "mesh"], type=str
+        "--type", default="vox", choices=["vox", "point", "mesh", "implicit"], type=str
     )
     parser.add_argument("--n_points", default=1000, type=int)
     parser.add_argument("--w_chamfer", default=1.0, type=float)

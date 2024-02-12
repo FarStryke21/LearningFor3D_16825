@@ -21,7 +21,7 @@ def get_args_parser():
     parser.add_argument('--vis_freq', default=1000, type=int)
     parser.add_argument('--batch_size', default=1, type=int)
     parser.add_argument('--num_workers', default=0, type=int)
-    parser.add_argument('--type', default='vox', choices=['vox', 'point', 'mesh'], type=str)
+    parser.add_argument('--type', default='vox', choices=['vox', 'point', 'mesh', 'implicit'], type=str)
     parser.add_argument('--n_points', default=5000, type=int)
     parser.add_argument('--w_chamfer', default=1.0, type=float)
     parser.add_argument('--w_smooth', default=0.1, type=float)  
