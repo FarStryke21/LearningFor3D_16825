@@ -86,7 +86,7 @@ def compute_sampling_metrics(pred_points, gt_points, thresholds, eps=1e-8):
     return metrics
 
 def evaluate(predictions, mesh_gt, thresholds, args):
-    if args.type == "vox":
+    if args.type == "vox" or args.type == "implicit":
         voxels_src = predictions
         H,W,D = voxels_src.shape[2:]
         vertices_src, faces_src = mcubes.marching_cubes(voxels_src.detach().cpu().squeeze().numpy(), isovalue=0.5)
@@ -154,7 +154,7 @@ def evaluate_model(args):
 
             predictions = model(images_gt, args)
 
-            if args.type == "vox":
+            if args.type == "vox" or args.type == "implicit":
                 predictions = predictions.permute(0,1,4,3,2)
 
             metrics = evaluate(predictions, mesh_gt, thresholds, args)

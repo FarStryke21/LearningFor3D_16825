@@ -173,7 +173,7 @@ class SingleViewto3D(nn.Module):
             return  mesh_pred          
 
         elif args.type == "implicit":
-            print("Shape of B: "+str(B))
+            # print("Shape of B: "+str(B))
             grid_size = 32
             x = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
             y = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
@@ -181,7 +181,7 @@ class SingleViewto3D(nn.Module):
             meshgrid = torch.meshgrid(x, y, z)
             # print(f"Meshgrid initial: {meshgrid.shape}")
             meshgrid = torch.stack(meshgrid, dim=-1).reshape(-1, 3).to(args.device)  # Reshape to (32*32*32, 3)
-            print(f"Meshgrid Update: {meshgrid.shape}")
+            # print(f"Meshgrid Update: {meshgrid.shape}")
 
             # --------------------------------------------------------
             # Tile image_feature to match the shape of meshgrid
@@ -193,10 +193,10 @@ class SingleViewto3D(nn.Module):
 
             # Concatenate image_feature_tiled and meshgrid
             inputs = torch.cat([image_feature_tiled, meshgrid_reshaped.permute(0, 2, 1)], dim=1)
-            print(f"Input Shape: {inputs.shape}")
+            # print(f"Input Shape: {inputs.shape}")
             # input shape is B x (512 + 3) x 32*32*32
             # Decoder takes input of 
-
+            inputs = inputs.view(B, 515, 32, 32, 32)
             # Reshape output to match the batch size and meshgrid size
             implicit_pred = self.decoder(inputs)
 
