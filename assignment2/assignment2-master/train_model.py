@@ -37,6 +37,7 @@ def preprocess(feed_dict, args):
     if args.type == "vox" or args.type == "implicit":
         voxels = feed_dict["voxels"].float()
         ground_truth_3d = voxels
+        print(voxels.shape)
     elif args.type == "point":
         mesh = feed_dict["mesh"]
         pointclouds_tgt = sample_points_from_meshes(mesh, args.n_points)
@@ -52,6 +53,8 @@ def preprocess(feed_dict, args):
 
 def calculate_loss(predictions, ground_truth, args):
     if args.type == "vox" or args.type == "implicit":
+        print("Prediction Shape: "+ str(predictions.shape))
+        print("Ground Truth Shape: "+ str(ground_truth.shape))
         loss = losses.voxel_loss(predictions, ground_truth)
     elif args.type == "point":
         loss = losses.chamfer_loss(predictions, ground_truth)
