@@ -28,6 +28,7 @@ def get_args_parser():
     parser.add_argument("--load_checkpoint", action="store_true")
     parser.add_argument("--load_feat", default=False)
     parser.add_argument("--device", default='cuda', type=str)
+    parser.add_argument('--n_coords', default = 2048, type=int)
     return parser
 
 
