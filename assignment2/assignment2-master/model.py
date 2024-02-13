@@ -123,29 +123,22 @@ class SingleViewto3D(nn.Module):
             )
 
         elif args.type == 'implicit':
-            # Input : b x (512 + num_coords x 3)
-            # Output : b x num_coords x 1
-            
-            # Start with a simple implementation of a network that predicts the occupancy given the image feature and a 3d coordinate as input. 
-            # You will need to create a meshgrid of 32x32x32 in the normalized coordinate space of (-1,1)^3 to predict the full occupancy output.
-            # It does not perform any form of normalization.
-            
-            # self.decoder =  nn.Sequential(
-            #     ResnetBlockFC(128, 128, size_h=None),
-            #     ResnetBlockFC(128, 128, size_h=None),
-            #     ResnetBlockFC(128, 128, size_h=None),
-            #     ResnetBlockFC(128, 128, size_h=None),
-            #     ResnetBlockFC(128, 128, size_h=None),
-            #     nn.ReLU(),
-            #     nn.Linear(128, 1),
-            # )
+            # Input : b x (512 + 3)
+            # Output : b x 1
 
+            # self.decoder = nn.Sequential(
+            #     nn.Linear(512 + 3, 128),
+            #     nn.Linear(128, 64),
+            #     nn.Linear(64, 1),
+            # )
             self.decoder = nn.Sequential(
-                nn.Linear(512 + 3, 128),
-                nn.Linear(128, 64),
-                nn.Linear(64, 1),
-            )
-             
+            nn.Conv3d(in_channels=512 + 3, out_channels=64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv3d(in_channels=64, out_channels=32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv3d(in_channels=32, out_channels=1, kernel_size=3, padding=1),
+            nn.Sigmoid()  # Applying Sigmoid to ensure output is between 0 and 1
+            ) 
 
     def forward(self, images, args):
         results = dict()
@@ -189,7 +182,8 @@ class SingleViewto3D(nn.Module):
             # print(f"Meshgrid initial: {meshgrid.shape}")
             meshgrid = torch.stack(meshgrid, dim=-1).reshape(-1, 3).to(args.device)  # Reshape to (32*32*32, 3)
             print(f"Meshgrid Update: {meshgrid.shape}")
-           
+
+            # --------------------------------------------------------
             # Tile image_feature to match the shape of meshgrid
             # Tile encoded_feat to match the batch size
             image_feature_tiled = encoded_feat.unsqueeze(2).repeat(1, 1, meshgrid.size(0))
@@ -200,13 +194,13 @@ class SingleViewto3D(nn.Module):
             # Concatenate image_feature_tiled and meshgrid
             inputs = torch.cat([image_feature_tiled, meshgrid_reshaped.permute(0, 2, 1)], dim=1)
             print(f"Input Shape: {inputs.shape}")
-            # Forward pass through decoder
-            output = self.decoder(inputs)
+            # input shape is B x (512 + 3) x 32*32*32
+            # Decoder takes input of 
 
             # Reshape output to match the batch size and meshgrid size
-            output = output.view(-1, 1, grid_size, grid_size, grid_size)
+            implicit_pred = self.decoder(inputs)
 
-            return output
+            return implicit_pred
 
             # --------------------------------------------------------
 
