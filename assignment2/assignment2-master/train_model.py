@@ -33,7 +33,7 @@ def get_args_parser():
 
 def preprocess(feed_dict, args):
     images = feed_dict["images"].squeeze(1)
-    if args.type == "vox":
+    if args.type == "vox" or args.type == "implicit":
         voxels = feed_dict["voxels"].float()
         ground_truth_3d = voxels
     elif args.type == "point":
@@ -50,7 +50,7 @@ def preprocess(feed_dict, args):
 
 
 def calculate_loss(predictions, ground_truth, args):
-    if args.type == "vox":
+    if args.type == "vox" or args.type == "implicit":
         loss = losses.voxel_loss(predictions, ground_truth)
     elif args.type == "point":
         loss = losses.chamfer_loss(predictions, ground_truth)
