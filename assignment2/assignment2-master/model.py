@@ -199,7 +199,7 @@ class SingleViewto3D(nn.Module):
             # Process coordinates
             self.n_coords = args.n_coords
             self.sample_p = 2 * torch.rand((B, self.num_coords * 3)) - 1
-            coordinates = self.fc_coords(self.sample_p)
+            coordinates = self.fc_coords(self.sample_p.to(args.device))
             coordinates = nn.ReLU()(coordinates)
 
             # Concatenate encoded features and coordinates
