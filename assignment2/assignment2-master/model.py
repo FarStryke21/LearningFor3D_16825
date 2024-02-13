@@ -180,19 +180,26 @@ class SingleViewto3D(nn.Module):
             return  mesh_pred          
 
         elif args.type == "implicit":
+            print("Shape of B: "+str(B))
             grid_size = 32
             x = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
             y = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
             z = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
             meshgrid = torch.meshgrid(x, y, z)
-            meshgrid = torch.stack(meshgrid, dim=-1).reshape(-1, 3)  # Reshape to (32*32*32, 3)
-
+            # print(f"Meshgrid initial: {meshgrid.shape}")
+            meshgrid = torch.stack(meshgrid, dim=-1).reshape(-1, 3).to(args.device)  # Reshape to (32*32*32, 3)
+            print(f"Meshgrid Update: {meshgrid.shape}")
+           
             # Tile image_feature to match the shape of meshgrid
-            image_feature_tiled = encoded_feat.repeat(meshgrid.size(0), 1)
+            # Tile encoded_feat to match the batch size
+            image_feature_tiled = encoded_feat.unsqueeze(2).repeat(1, 1, meshgrid.size(0))
 
-            # Concatenate image_feature and meshgrid
-            inputs = torch.cat([image_feature_tiled, meshgrid], dim=1)
+            # Reshape meshgrid to have the same number of columns as the tiled encoded features
+            meshgrid_reshaped = meshgrid.unsqueeze(0).repeat(B, 1, 1)
 
+            # Concatenate image_feature_tiled and meshgrid
+            inputs = torch.cat([image_feature_tiled, meshgrid_reshaped.permute(0, 2, 1)], dim=1)
+            print(f"Input Shape: {inputs.shape}")
             # Forward pass through decoder
             output = self.decoder(inputs)
 
