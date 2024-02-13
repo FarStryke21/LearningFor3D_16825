@@ -140,22 +140,10 @@ class SingleViewto3D(nn.Module):
             #     nn.Linear(128, 1),
             # )
 
-            self.num_image_features = 512
-            self.num_coords = args.n_points
-
-            # Fully connected layer for image features
-            self.fc_encoded = nn.Linear(self.num_image_features, 256)
-            
-            # Fully connected layers for coordinates
-            self.fc_coords = nn.Linear(self.num_coords * 3, 256)
-
-            # Combined fully connected layers
-            self.fc_combined = nn.Sequential(
-                nn.Linear(256 * 2, 512),
-                nn.ReLU(),
-                nn.Linear(512, 256),
-                nn.ReLU(),
-                nn.Linear(256, 1)
+            self.decoder = nn.Sequential(
+                nn.Linear(512 + 3, 128),
+                nn.Linear(128, 64),
+                nn.Linear(64, 1),
             )
              
 
@@ -192,23 +180,49 @@ class SingleViewto3D(nn.Module):
             return  mesh_pred          
 
         elif args.type == "implicit":
+            grid_size = 32
+            x = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
+            y = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
+            z = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
+            meshgrid = torch.meshgrid(x, y, z)
+            meshgrid = torch.stack(meshgrid, dim=-1).reshape(-1, 3)  # Reshape to (32*32*32, 3)
+
+            # Tile image_feature to match the shape of meshgrid
+            image_feature_tiled = encoded_feat.repeat(meshgrid.size(0), 1)
+
+            # Concatenate image_feature and meshgrid
+            inputs = torch.cat([image_feature_tiled, meshgrid], dim=1)
+
+            # Forward pass through decoder
+            output = self.decoder(inputs)
+
+            # Reshape output to match the batch size and meshgrid size
+            output = output.view(-1, 1, grid_size, grid_size, grid_size)
+
+            return output
+
+            # --------------------------------------------------------
+
             # Process encoded features
-            encoded_feat = self.fc_encoded(encoded_feat)
-            encoded_feat = nn.ReLU()(encoded_feat)
+            # encoded_feat = self.fc_encoded(encoded_feat)
+            # encoded_feat = nn.ReLU()(encoded_feat)
 
-            # Process coordinates
-            self.n_coords = args.n_coords
-            self.sample_p = 2 * torch.rand((B, self.num_coords * 3)) - 1
-            coordinates = self.fc_coords(self.sample_p.to(args.device))
-            coordinates = nn.ReLU()(coordinates)
+            # # Process coordinates
+            # self.n_coords = args.n_coords
+            # self.sample_p = 2 * torch.rand((B, self.num_coords * 3)) - 1
+            # coordinates = self.fc_coords(self.sample_p.to(args.device))
+            # coordinates = nn.ReLU()(coordinates)
 
-            # Concatenate encoded features and coordinates
-            combined = torch.cat((encoded_feat, coordinates), dim=1)
+            # # Concatenate encoded features and coordinates
+            # combined = torch.cat((encoded_feat, coordinates), dim=1)
 
-            # Pass through combined fully connected layers
-            occupancy = self.fc_combined(combined)
+            # # Pass through combined fully connected layers
+            # occupancy = self.fc_combined(combined)
 
-            return occupancy
+            # return occupancy
+
+            # --------------------------------------------------------
+
             # self.n_coords = args.n_coords # default=2048
             # self.fc_p = nn.Linear(3*self.n_coords, 128)
             # self.fc_c = nn.Linear(512, 128)
