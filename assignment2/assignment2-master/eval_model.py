@@ -21,7 +21,7 @@ def get_args_parser():
     parser.add_argument('--vis_freq', default=1000, type=int)
     parser.add_argument('--batch_size', default=1, type=int)
     parser.add_argument('--num_workers', default=0, type=int)
-    parser.add_argument('--type', default='vox', choices=['vox', 'point', 'mesh', 'implicit'], type=str)
+    parser.add_argument('--type', default='vox', choices=['vox', 'point', 'mesh', 'implicit', 'parametric'], type=str)
     parser.add_argument('--n_points', default=5000, type=int)
     parser.add_argument('--w_chamfer', default=1.0, type=float)
     parser.add_argument('--w_smooth', default=0.1, type=float)  
@@ -95,7 +95,7 @@ def evaluate(predictions, mesh_gt, thresholds, args):
         mesh_src = pytorch3d.structures.Meshes([vertices_src], [faces_src])
         pred_points = sample_points_from_meshes(mesh_src, args.n_points)
         pred_points = utils_vox.Mem2Ref(pred_points, H, W, D)
-    elif args.type == "point":
+    elif args.type == "point" or args.type == "parametric":
         pred_points = predictions.cpu()
     elif args.type == "mesh":
         pred_points = sample_points_from_meshes(predictions, args.n_points).cpu()
@@ -174,7 +174,7 @@ def evaluate_model(args):
                                     output_path=f'vis/gt_pcd_{step}.gif')
                         plt.imsave(f'vis/gt_img_{step}.png', images_gt)
 
-                elif args.type == 'point':
+                elif args.type == 'point' or args.type == 'parametric':
                     visualize_pcd(predictions[0].cpu().detach(),
                                 output_path=f'vis/{step}_{args.type}.gif')
                     # visualize gt voxel
