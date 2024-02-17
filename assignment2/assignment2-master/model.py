@@ -77,38 +77,23 @@ class SingleViewto3D(nn.Module):
             # TODO:
             # self.decoder =  
             self.decoder = nn.Sequential(
-                 nn.Linear(512, 2*2*2*512),  # Linear layer to upscale to initial feature map size
-                nn.ReLU(),
-                nn.Unflatten(1, (512, 2, 2, 2)),  # Reshape to (512, 2, 2, 2)
-                
-                nn.ConvTranspose3d(512, 256, kernel_size=2, stride=2, padding=0),  # Upsampling to (4, 4, 4)
-                nn.ReLU(),
-                
-                nn.ConvTranspose3d(256, 128, kernel_size=2, stride=2, padding=0),  # Upsampling to (8, 8, 8)
-                nn.ReLU(),
-                
-                nn.ConvTranspose3d(128, 64, kernel_size=2, stride=2, padding=0),  # Upsampling to (16, 16, 16)
-                nn.ReLU(),
-                
-                nn.ConvTranspose3d(64, 1, kernel_size=2, stride=2, padding=0),  # Upsampling to (32, 32, 32)
-                nn.Sigmoid()
                 # Attempt 1
-                # nn.Linear(512, 2048), # b x 512 -> # b x 2048
-                # ReshapeLayer((-1, 256, 2, 2, 2)), # b x 2048 -> b x 256 x 2 x 2 x 2
-                # nn.ConvTranspose3d(256, 128, kernel_size=4, stride=2, bias=False, padding=1), # b x 256 x 2 x 2 x 2 -> b x 128 x 2 x 2 x 2
-                # nn.BatchNorm3d(128),
-                # nn.ReLU(),
-                # nn.ConvTranspose3d(128, 64, kernel_size=4, stride=2, bias=False, padding=1), # b x 128 x 2 x 2 x 2 -> b x 64 x 2 x 2 x 2
-                # nn.BatchNorm3d(64),
-                # nn.ReLU(),
-                # nn.ConvTranspose3d(64, 32, kernel_size=4, stride=2, bias=False, padding=1), # b x 64 x 2 x 2 x 2 -> b x 32 x 2 x 2 x 2
+                nn.Linear(512, 512*2*2*2), # b x 512 -> # b x 2048
+                nn.Unflatten((-1, (512, 2, 2, 2))), # b x 2048 -> b x 256 x 2 x 2 x 2
+                nn.ConvTranspose3d(512, 256, kernel_size=4, stride=2, bias=False, padding=1), # b x 256 x 2 x 2 x 2 -> b x 128 x 2 x 2 x 2
+                nn.BatchNorm3d(256),
+                nn.ReLU(),
+                nn.ConvTranspose3d(256, 128, kernel_size=4, stride=2, bias=False, padding=1), # b x 128 x 2 x 2 x 2 -> b x 64 x 2 x 2 x 2
+                nn.BatchNorm3d(128),
+                nn.ReLU(),
+                nn.ConvTranspose3d(128, 64, kernel_size=4, stride=2, bias=False, padding=1), # b x 64 x 2 x 2 x 2 -> b x 32 x 2 x 2 x 2
+                nn.BatchNorm3d(64),
+                nn.ReLU(),
+                nn.ConvTranspose3d(64, 32, kernel_size=4, stride=2, bias=False, padding=1), # b x 32 x 2 x 2 x 2 -> b x 8 x 2 x 2 x 2
                 # nn.BatchNorm3d(32),
                 # nn.ReLU(),
-                # nn.ConvTranspose3d(32, 8, kernel_size=4, stride=2, bias=False, padding=1), # b x 32 x 2 x 2 x 2 -> b x 8 x 2 x 2 x 2
-                # nn.BatchNorm3d(8),
-                # nn.ReLU(),
                 # nn.ConvTranspose3d(8, 1, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
-                # nn.Sigmoid()
+                nn.Sigmoid()
             )   
            
         elif args.type == "point":
