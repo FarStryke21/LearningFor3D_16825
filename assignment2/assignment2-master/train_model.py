@@ -103,6 +103,9 @@ def train_model(args):
         checkpoint = torch.load(f"checkpoint_{args.type}.pth")
         model.load_state_dict(checkpoint["model_state_dict"])
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        for grp in optimizer.param_groups:
+            grp["lr"] = args.lr
+
         start_iter = checkpoint["step"]
         print(f"Succesfully loaded iter {start_iter}")
 
