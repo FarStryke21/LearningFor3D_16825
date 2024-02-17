@@ -79,7 +79,7 @@ class SingleViewto3D(nn.Module):
             self.decoder = nn.Sequential(
                 # Attempt 1
                 nn.Linear(512, 512*2*2*2), # b x 512 -> # b x 2048
-                nn.Unflatten((-1, (512, 2, 2, 2))), # b x 2048 -> b x 256 x 2 x 2 x 2
+                nn.Unflatten(-1, (512, 2, 2, 2)), # b x 2048 -> b x 256 x 2 x 2 x 2
                 nn.ConvTranspose3d(512, 256, kernel_size=4, stride=2, bias=False, padding=1), # b x 256 x 2 x 2 x 2 -> b x 128 x 2 x 2 x 2
                 nn.BatchNorm3d(256),
                 nn.ReLU(),
