@@ -90,9 +90,15 @@ class SingleViewto3D(nn.Module):
                 nn.BatchNorm3d(64),
                 nn.ReLU(),
                 nn.ConvTranspose3d(64, 32, kernel_size=4, stride=2, bias=False, padding=1), # b x 32 x 2 x 2 x 2 -> b x 8 x 2 x 2 x 2
-                # nn.BatchNorm3d(32),
-                # nn.ReLU(),
-                # nn.ConvTranspose3d(8, 1, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
+                nn.BatchNorm3d(32),
+                nn.ReLU(),
+                nn.ConvTranspose3d(32, 16, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
+                nn.BatchNorm3d(16),
+                nn.ReLU(),
+                nn.ConvTranspose3d(16, 8, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
+                nn.BatchNorm3d(8),
+                nn.ReLU(),
+                nn.ConvTranspose3d(8, 1, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
                 nn.Sigmoid()
             )   
            
