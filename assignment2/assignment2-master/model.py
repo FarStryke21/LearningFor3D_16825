@@ -203,7 +203,7 @@ class SingleViewto3D(nn.Module):
             random_points[:, :, 1] *= image_height  # Scale y-coordinate to image height
 
             # Convert to integer coordinates
-            random_points = random_points.type(torch.int)
+            # random_points = random_points.type(torch.int)
 
             # Ensure points are within image boundaries
             random_points[:, :, 0] = torch.clamp(random_points[:, :, 0], 0, image_width - 1)
@@ -211,7 +211,8 @@ class SingleViewto3D(nn.Module):
 
             
             # convert to a tensor of (B, n_points * 2)
-            pointclouds_pred = random_points.view(B, -1)
+            pointclouds_pred = random_points.view(B, -1).to(args.device).double()
+            print(pointclouds_pred.dtype)
 
             # pass through the decoder
             parametric_pred = self.decoder(pointclouds_pred)
