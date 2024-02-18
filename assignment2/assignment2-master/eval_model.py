@@ -159,7 +159,9 @@ def evaluate_model(args):
         
             if args.type == "vox" or args.type == "implicit":
                 predictions = predictions.permute(0,1,4,3,2)
-
+            if  args.type == "implicit":
+                # multiply by 100 to get the correct scale
+                predictions = predictions * 100
             metrics = evaluate(predictions, mesh_gt, thresholds, args)
             # TODO:
             if (step % args.vis_freq) == 0:
