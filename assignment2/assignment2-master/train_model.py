@@ -53,8 +53,8 @@ def preprocess(feed_dict, args):
 
 def calculate_loss(predictions, ground_truth, args):
     if args.type == "vox" or args.type == "implicit":
-        # print("Prediction Shape: "+ str(predictions.shape))
-        # print("Ground Truth Shape: "+ str(ground_truth.shape))
+        print("Prediction Shape: "+ str(predictions.shape))
+        print("Ground Truth Shape: "+ str(ground_truth.shape))
         loss = losses.voxel_loss(predictions, ground_truth)
     elif args.type == "point" or args.type == "parametric":
         loss = losses.chamfer_loss(predictions, ground_truth)

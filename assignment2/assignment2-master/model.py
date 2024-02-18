@@ -138,14 +138,23 @@ class SingleViewto3D(nn.Module):
             #     nn.Linear(128, 64),
             #     nn.Linear(64, 1),
             # )
+            # self.decoder = nn.Sequential(
+            # nn.Conv3d(in_channels=512 + 3, out_channels=64, kernel_size=3, padding=1),
+            # nn.ReLU(),
+            # nn.Conv3d(in_channels=64, out_channels=32, kernel_size=3, padding=1),
+            # nn.ReLU(),
+            # nn.Conv3d(in_channels=32, out_channels=1, kernel_size=3, padding=1),
+            # nn.Sigmoid()  # Applying Sigmoid to ensure output is between 0 and 1
+            # )
             self.decoder = nn.Sequential(
-            nn.Conv3d(in_channels=512 + 3, out_channels=64, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.Conv3d(in_channels=64, out_channels=32, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.Conv3d(in_channels=32, out_channels=1, kernel_size=3, padding=1),
-            nn.Sigmoid()  # Applying Sigmoid to ensure output is between 0 and 1
+                nn.Linear(515, 512),  # 512 (image features) + 3 (3D coordinates)
+                nn.ReLU(),
+                nn.Linear(512, 256),
+                nn.ReLU(),
+                nn.Linear(256, 1),  # Output: occupancy value
+                nn.Sigmoid()
             )
+
 
         elif args.type == 'parametric':
             # Input : b x (n_points x 2)
@@ -226,34 +235,50 @@ class SingleViewto3D(nn.Module):
 
 
         elif args.type == "implicit":
-            # print("Shape of B: "+str(B))
-            grid_size = 32
-            x = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
-            y = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
-            z = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
-            meshgrid = torch.meshgrid(x, y, z)
-            # print(f"Meshgrid initial: {meshgrid.shape}")
-            meshgrid = torch.stack(meshgrid, dim=-1).reshape(-1, 3).to(args.device)  # Reshape to (32*32*32, 3)
-            # print(f"Meshgrid Update: {meshgrid.shape}")
+            image_features = encoded_feat.unsqueeze(1)  # Size becomes (b, 1, 512)
+
+            # Expand dimensions to match the coordinates size
+            image_features = image_features.expand(-1, 32768, -1)  # Size becomes (b, 32768, 512)
+
+            coords = torch.linspace(-1, 1, 32)
+            meshgrid = torch.stack(torch.meshgrid(coords, coords, coords), -1)  # Size: (32, 32, 32, 3)
+            meshgrid = meshgrid.reshape(-1, 3)  # Size: (32768, 3)
+
+            # Repeat the meshgrid for each item in the batch
+            meshgrid = meshgrid.unsqueeze(0).repeat(encoded_feat.size(0), 1, 1)  # Size: (b, 32768, 3)
+            x = torch.cat([image_features, coords], dim=-1)  # Concatenate image features and 3D coordinates
+            occupancy = self.decoder(x)  # Pass through the
+            occupancy = occupancy.view(-1, 1, 32, 32, 32)
+            return occupancy
+        
+            # # print("Shape of B: "+str(B))
+            # grid_size = 32
+            # x = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
+            # y = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
+            # z = torch.linspace(-1, 1, grid_size, dtype=torch.float32)
+            # meshgrid = torch.meshgrid(x, y, z)
+            # # print(f"Meshgrid initial: {meshgrid.shape}")
+            # meshgrid = torch.stack(meshgrid, dim=-1).reshape(-1, 3).to(args.device)  # Reshape to (32*32*32, 3)
+            # # print(f"Meshgrid Update: {meshgrid.shape}")
 
             # --------------------------------------------------------
             # Tile image_feature to match the shape of meshgrid
             # Tile encoded_feat to match the batch size
-            image_feature_tiled = encoded_feat.unsqueeze(2).repeat(1, 1, meshgrid.size(0))
+            # image_feature_tiled = encoded_feat.unsqueeze(2).repeat(1, 1, meshgrid.size(0))
 
-            # Reshape meshgrid to have the same number of columns as the tiled encoded features
-            meshgrid_reshaped = meshgrid.unsqueeze(0).repeat(B, 1, 1)
+            # # Reshape meshgrid to have the same number of columns as the tiled encoded features
+            # meshgrid_reshaped = meshgrid.unsqueeze(0).repeat(B, 1, 1)
 
-            # Concatenate image_feature_tiled and meshgrid
-            inputs = torch.cat([image_feature_tiled, meshgrid_reshaped.permute(0, 2, 1)], dim=1)
-            # print(f"Input Shape: {inputs.shape}")
-            # input shape is B x (512 + 3) x 32*32*32
-            # Decoder takes input of 
-            inputs = inputs.view(B, 515, 32, 32, 32)
-            # Reshape output to match the batch size and meshgrid size
-            implicit_pred = self.decoder(inputs)
+            # # Concatenate image_feature_tiled and meshgrid
+            # inputs = torch.cat([image_feature_tiled, meshgrid_reshaped.permute(0, 2, 1)], dim=1)
+            # # print(f"Input Shape: {inputs.shape}")
+            # # input shape is B x (512 + 3) x 32*32*32
+            # # Decoder takes input of 
+            # inputs = inputs.view(B, 515, 32, 32, 32)
+            # # Reshape output to match the batch size and meshgrid size
+            # implicit_pred = self.decoder(inputs)
 
-            return implicit_pred
+            # return implicit_pred
 
             # --------------------------------------------------------
 
