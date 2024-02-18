@@ -238,15 +238,16 @@ class SingleViewto3D(nn.Module):
             image_features = encoded_feat.unsqueeze(1)  # Size becomes (b, 1, 512)
 
             # Expand dimensions to match the coordinates size
-            image_features = image_features.expand(-1, 32768, -1)  # Size becomes (b, 32768, 512)
+            image_features = image_features.expand(-1, 32768, -1).to(self.device)  # Size becomes (b, 32768, 512)
 
             coords = torch.linspace(-1, 1, 32)
             meshgrid = torch.stack(torch.meshgrid(coords, coords, coords), -1)  # Size: (32, 32, 32, 3)
             meshgrid = meshgrid.reshape(-1, 3)  # Size: (32768, 3)
 
             # Repeat the meshgrid for each item in the batch
-            meshgrid = meshgrid.unsqueeze(0).repeat(encoded_feat.size(0), 1, 1)  # Size: (b, 32768, 3)
-            x = torch.cat([image_features, coords], dim=-1)  # Concatenate image features and 3D coordinates
+            meshgrid = meshgrid.unsqueeze(0).repeat(encoded_feat.size(0), 1, 1).to(self.device)  # Size: (b, 32768, 3)
+            x = torch.cat([image_features, meshgrid], dim=-1)  # Concatenate image features and 3D coordinates
+            x = x.view(-1, 515)
             occupancy = self.decoder(x)  # Pass through the
             occupancy = occupancy.view(-1, 1, 32, 32, 32)
             return occupancy

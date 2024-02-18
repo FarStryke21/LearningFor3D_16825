@@ -143,22 +143,21 @@ def evaluate_model(args):
     for step in range(start_iter, max_iter):
         try:
             iter_start_time = time.time()
-
+            
             read_start_time = time.time()
-
+            
             feed_dict = next(eval_loader)
 
             images_gt, mesh_gt = preprocess(feed_dict, args)
-
+        
             read_time = time.time() - read_start_time
 
             predictions = model(images_gt, args)
-
+        
             if args.type == "vox" or args.type == "implicit":
                 predictions = predictions.permute(0,1,4,3,2)
 
             metrics = evaluate(predictions, mesh_gt, thresholds, args)
-
             # TODO:
             if (step % args.vis_freq) == 0:
                 # visualization block
@@ -168,6 +167,7 @@ def evaluate_model(args):
                 print(images_gt.shape)
                 if args.type == 'vox' or args.type == 'implicit':
                         # visualize prediction
+                        print("Save 1")
                         visualize_voxel(predictions[0].cpu().detach(),
                                         output_path=f'vis/{step}_{args.type}.gif')
                         visualize_mesh(mesh_gt.cpu().detach(),
@@ -206,13 +206,14 @@ def evaluate_model(args):
             avg_f1_score.append(torch.tensor([metrics["F1@%f" % t] for t in thresholds]))
 
             print("[%4d/%4d]; ttime: %.0f (%.2f, %.2f); F1@0.05: %.3f; Avg F1@0.05: %.3f" % (step, max_iter, total_time, read_time, iter_time, f1_05, torch.tensor(avg_f1_score_05).mean()))
+            print("[%4d/%4d]"%(step, max_iter))
         except Exception as e:
             print(e)
     
 
-    avg_f1_score = torch.stack(avg_f1_score).mean(0)
+    #avg_f1_score = torch.stack(avg_f1_score).mean(0)
 
-    save_plot(thresholds, avg_f1_score,  args)
+    #save_plot(thresholds, avg_f1_score,  args)
     print('Done!')
 
 if __name__ == '__main__':
