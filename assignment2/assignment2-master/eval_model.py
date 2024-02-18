@@ -86,7 +86,7 @@ def compute_sampling_metrics(pred_points, gt_points, thresholds, eps=1e-8):
     return metrics
 
 def evaluate(predictions, mesh_gt, thresholds, args):
-    if args.type == "vox" or args.type == "implicit":
+    if args.type == "vox":
         voxels_src = predictions
         H,W,D = voxels_src.shape[2:]
         vertices_src, faces_src = mcubes.marching_cubes(voxels_src.detach().cpu().squeeze().numpy(), isovalue=0.5)
@@ -95,6 +95,9 @@ def evaluate(predictions, mesh_gt, thresholds, args):
         mesh_src = pytorch3d.structures.Meshes([vertices_src], [faces_src])
         pred_points = sample_points_from_meshes(mesh_src, args.n_points)
         pred_points = utils_vox.Mem2Ref(pred_points, H, W, D)
+    elif args.type == "implicit":
+        # Print the min and max of the implicit function
+        print(predictions.min(), predictions.max())
     elif args.type == "point" or args.type == "parametric":
         pred_points = predictions.cpu()
     elif args.type == "mesh":

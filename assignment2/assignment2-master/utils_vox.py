@@ -158,4 +158,3 @@ def get_inbounds(xyz, Z, Y, X, already_mem=False):
     inbounds = x_valid & y_valid & z_valid
     return inbounds.bool()
 
-
