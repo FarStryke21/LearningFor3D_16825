@@ -66,9 +66,10 @@ def visualize_voxel(voxels,
                    fov=60,
                    image_size=256,
                    color=[0.7, 0.7, 1],
-                   steps=range(360, 0, -15)):
+                   steps=range(360, 0, -15),
+                   thresh = 0.8):
     device = get_device()
-    mesh = pytorch3d.ops.cubify(voxels, thresh=0.8).to(device)
+    mesh = pytorch3d.ops.cubify(voxels, thresh=thresh).to(device)
     visualize_mesh(mesh, 
                    textures=textures, 
                    output_path=output_path,
