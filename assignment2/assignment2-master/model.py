@@ -103,7 +103,7 @@ class SingleViewto3D(nn.Module):
                 nn.BatchNorm3d(8),
                 nn.ReLU(),
                 nn.ConvTranspose3d(8, 1, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
-                nn.Sigmoid()
+                # nn.Sigmoid()
             )   
            
         elif args.type == "point":
@@ -177,7 +177,7 @@ class SingleViewto3D(nn.Module):
             )
             self.decoder_out = nn.Sequential(
                 nn.ConvTranspose3d(64+3,1,kernel_size=1),
-                nn.Sigmoid(),
+                # nn.Sigmoid(),
             )
 
 
