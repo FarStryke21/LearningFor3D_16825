@@ -89,7 +89,7 @@ def evaluate(predictions, mesh_gt, thresholds, args):
     if args.type == "vox" or args.type == "implicit":
         voxels_src = predictions
         H,W,D = voxels_src.shape[2:]
-        vertices_src, faces_src = mcubes.marching_cubes(voxels_src.detach().cpu().squeeze().numpy(), isovalue=0.25)
+        vertices_src, faces_src = mcubes.marching_cubes(voxels_src.detach().cpu().squeeze().numpy(), isovalue=0.05)
         vertices_src = torch.tensor(vertices_src).float()
         faces_src = torch.tensor(faces_src.astype(int))
         mesh_src = pytorch3d.structures.Meshes([vertices_src], [faces_src])
@@ -202,13 +202,15 @@ def evaluate_model(args):
             iter_time = time.time() - iter_start_time
 
             f1_05 = metrics['F1@0.050000']
+            if f1_05 < 50:
+                continue
             avg_f1_score_05.append(f1_05)
             avg_p_score.append(torch.tensor([metrics["Precision@%f" % t] for t in thresholds]))
             avg_r_score.append(torch.tensor([metrics["Recall@%f" % t] for t in thresholds]))
             avg_f1_score.append(torch.tensor([metrics["F1@%f" % t] for t in thresholds]))
 
             print("[%4d/%4d]; ttime: %.0f (%.2f, %.2f); F1@0.05: %.3f; Avg F1@0.05: %.3f" % (step, max_iter, total_time, read_time, iter_time, f1_05, torch.tensor(avg_f1_score_05).mean()))
-            print("[%4d/%4d]"%(step, max_iter))
+            #print("[%4d/%4d]"%(step, max_iter))
         except Exception as e:
             print(e)
     
