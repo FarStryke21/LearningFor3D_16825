@@ -206,8 +206,6 @@ def evaluate_model(args):
             iter_time = time.time() - iter_start_time
 
             f1_05 = metrics['F1@0.050000']
-            if f1_05 < 50:
-                continue
             avg_f1_score_05.append(f1_05)
             avg_p_score.append(torch.tensor([metrics["Precision@%f" % t] for t in thresholds]))
             avg_r_score.append(torch.tensor([metrics["Recall@%f" % t] for t in thresholds]))
