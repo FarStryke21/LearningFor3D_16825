@@ -10,7 +10,9 @@ from pytorch3d.ops import sample_points_from_meshes
 from pytorch3d.ops import knn_points
 import mcubes
 import utils_vox
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+from MapExtrackt import FeatureExtractor
+ 
 
 import numpy as np
 
@@ -53,23 +55,6 @@ def save_plot(thresholds, avg_f1_score, args):
     # Create a single file with thresholds and F1-scores and save as csv
     data = np.array([thresholds, avg_f1_score.cpu().numpy()])
     np.savetxt(f'eval_{args.type}.csv', data.T, delimiter=',', header='Threshold, F1-score', comments='')
-
-# Write a function that prints the saliency map of the input image for the given model
-def saliency_map(model, input_image, id, args):
-    # Set the model to evaluation mode
-    model.eval()
-    # Set the requires_grad_ attribute of the input image to True
-    input_image.requires_grad = True
-    # Forward pass through the model to get the scores
-    scores = model(input_image)
-    # Get the index corresponding to the maximum score and backpropagate
-    scores[0, scores.argmax()].backward()
-    # Get the saliency map
-    saliency = input_image.grad
-    # plot and save the saliency map
-    plt.imshow(saliency, cmap='hot')
-    plt.axis('off')
-    plt.savefig(f'data/q26/saliency_map_{args.type}_{id}.png')
 
 def compute_sampling_metrics(pred_points, gt_points, thresholds, eps=1e-8):
     metrics = {}
@@ -177,9 +162,14 @@ def evaluate_model(args):
 
             predictions = model(images_gt, args)
 
-            if step in [0,1,2]:
+            if step == 0 :
                 print(f"Saliency Map {step}")
-                saliency_map(model, images_gt, step, args)
+                # Extract the saliency map
+                extractor = FeatureExtractor(model)
+                # Save activation map for all the layers in the model
+                for i in range(0, len(predictions)):
+                    saliency_map = extractor.saliency_map(images_gt, i)
+                    plt.imsave(f'data/q26/saliency_map_{args.type}_{i}.png', saliency_map)
         
             if args.type == "vox" or args.type == "implicit":
                 predictions = predictions.permute(0,1,4,3,2)
