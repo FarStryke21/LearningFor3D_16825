@@ -50,6 +50,10 @@ def save_plot(thresholds, avg_f1_score, args):
     ax.set_title(f'Evaluation {args.type}')
     plt.savefig(f'eval_{args.type}', bbox_inches='tight')
 
+    # Create a single file with thresholds and F1-scores and save as csv
+    data = np.array([thresholds, avg_f1_score.cpu().numpy()])
+    np.savetxt(f'eval_{args.type}.csv', data.T, delimiter=',', header='Threshold, F1-score', comments='')
+
 
 def compute_sampling_metrics(pred_points, gt_points, thresholds, eps=1e-8):
     metrics = {}
@@ -89,7 +93,7 @@ def evaluate(predictions, mesh_gt, thresholds, args):
     if args.type == "vox" or args.type == "implicit":
         voxels_src = predictions
         H,W,D = voxels_src.shape[2:]
-        vertices_src, faces_src = mcubes.marching_cubes(voxels_src.detach().cpu().squeeze().numpy(), isovalue=0)
+        vertices_src, faces_src = mcubes.marching_cubes(voxels_src.detach().cpu().squeeze().numpy(), isovalue=0.05)
         vertices_src = torch.tensor(vertices_src).float()
         faces_src = torch.tensor(faces_src.astype(int))
         mesh_src = pytorch3d.structures.Meshes([vertices_src], [faces_src])
@@ -160,9 +164,9 @@ def evaluate_model(args):
             if args.type == "vox" or args.type == "implicit":
                 predictions = predictions.permute(0,1,4,3,2)
             if  args.type == "implicit":
-                #multiply by 100 to get the correct scale
+                # multiply by 100 to get the correct scale
                 predictions = predictions * 100
-            #print(predictions.shape)
+            # print(predictions.shape)
             metrics = evaluate(predictions, mesh_gt, thresholds, args)
             # TODO:
             if (step % args.vis_freq) == 0:
@@ -175,7 +179,7 @@ def evaluate_model(args):
                         # visualize prediction
                         print("Save 1")
                         visualize_voxel(predictions[0].cpu().detach(),
-                                        output_path=f'vis/{step}_{args.type}.gif', thresh = 0)
+                                        output_path=f'vis/{step}_{args.type}.gif', thresh = 0.25)
                         visualize_mesh(mesh_gt.cpu().detach(),
                                     output_path=f'vis/gt_mesh_{step}.gif')
                         plt.imsave(f'vis/gt_img_{step}.png', images_gt)
@@ -218,6 +222,7 @@ def evaluate_model(args):
     avg_f1_score = torch.stack(avg_f1_score).mean(0)
 
     save_plot(thresholds, avg_f1_score,  args)
+
     print('Done!')
 
 if __name__ == '__main__':
