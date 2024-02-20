@@ -54,6 +54,22 @@ def save_plot(thresholds, avg_f1_score, args):
     data = np.array([thresholds, avg_f1_score.cpu().numpy()])
     np.savetxt(f'eval_{args.type}.csv', data.T, delimiter=',', header='Threshold, F1-score', comments='')
 
+# Write a function that prints the saliency map of the input image for the given model
+def saliency_map(model, input_image, id, args):
+    # Set the model to evaluation mode
+    model.eval()
+    # Set the requires_grad_ attribute of the input image to True
+    input_image.requires_grad = True
+    # Forward pass through the model to get the scores
+    scores = model(input_image)
+    # Get the index corresponding to the maximum score and backpropagate
+    scores[0, scores.argmax()].backward()
+    # Get the saliency map
+    saliency = input_image.grad
+    # plot and save the saliency map
+    plt.imshow(saliency, cmap='hot')
+    plt.axis('off')
+    plt.savefig(f'data/q26/saliency_map_{args.type}_{id}.png')
 
 def compute_sampling_metrics(pred_points, gt_points, thresholds, eps=1e-8):
     metrics = {}
@@ -160,6 +176,10 @@ def evaluate_model(args):
             read_time = time.time() - read_start_time
 
             predictions = model(images_gt, args)
+
+            if step in [0,1,2]:
+                print(f"Saliency Map {step}")
+                saliency_map(model, images_gt, step, args)
         
             if args.type == "vox" or args.type == "implicit":
                 predictions = predictions.permute(0,1,4,3,2)
