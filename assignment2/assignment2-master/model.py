@@ -71,7 +71,7 @@ class SingleViewto3D(nn.Module):
 
         self.extra_feature = torch.meshgrid(torch.arange(-1.,1.,2./32),torch.arange(-1.,1.,2./32),torch.arange(-1.,1.,2./32))
         # print(self.extra_feature.shape)
-        self.extra_feature = torch.cat([self.extra_feature[0].unsqueeze(0),self.extra_feature[1].unsqueeze(0),self.extra_feature[2].unsqueeze(0)],axis=0).cuda()
+        self.extra_feature = torch.cat([self.extra_feature[0].unsqueeze(0),self.extra_feature[1].unsqueeze(0),self.extra_feature[2].unsqueeze(0)],axis=0).to(self.device)
         self.extra_feature = self.extra_feature.unsqueeze(0)
         
         # define decoder
@@ -185,27 +185,15 @@ class SingleViewto3D(nn.Module):
             #     nn.Linear(256, 1),  # Output: occupancy value
             #     nn.Sigmoid()
             # )
-            self.decoder_in = nn.Sequential(
-                nn.Linear(512,24*24*24),
-                nn.ReLU()
-            )
             self.decoder = nn.Sequential(
-                nn.ConvTranspose3d(1,16,kernel_size=3,padding=1),
-                nn.ReLU(),
-                nn.ConvTranspose3d(16,32,kernel_size=3,padding=1),
-                nn.ReLU(),
-                nn.ConvTranspose3d(32,32,kernel_size=3,padding=1),
-                nn.ReLU(),
-                nn.ConvTranspose3d(32,64,kernel_size=5,padding=1),
-                nn.ReLU(),
-                nn.ConvTranspose3d(64,64,kernel_size=7),
-                nn.ReLU(),
-                
+                nn.Linear(512 + 3, 2048),
+                nn.LeakyReLU(),
+                nn.Linear(2048, 4096),
+                nn.LeakyReLU(),
+                nn.Linear(4096, 1),
+                nn.Sigmoid()
             )
-            self.decoder_out = nn.Sequential(
-                nn.ConvTranspose3d(64+3,1,kernel_size=1),
-                # nn.Sigmoid(),
-            )
+            
 
 
         elif args.type == 'parametric':
@@ -287,13 +275,32 @@ class SingleViewto3D(nn.Module):
 
 
         elif args.type == "implicit":
-            voxels_in = self.decoder_in(encoded_feat).view(-1,1,24,24,24)
-            voxels_pred = self.decoder(voxels_in)
-            self.extra_feature_ = self.extra_feature.repeat(voxels_in.shape[0],1,1,1,1)
-            voxels_pred = torch.cat((voxels_pred,self.extra_feature_),axis=1)
-            voxels_pred = self.decoder_out(voxels_pred)
-            # print("Here")
-            return voxels_pred
+            # sample 1000 points from the voxel grid pf 32x32x32 nomralized to -1 to 1
+
+            coords = torch.linspace(-1, 1, 32)
+            meshgrid = torch.stack(torch.meshgrid(coords, coords, coords), -1)  # Size: (32, 32, 32, 3)
+            meshgrid = meshgrid.reshape(-1, 3)  # Size: (32768, 3)
+
+            # Add sampled_points to encoded_feat
+            encoded_feat_expanded = encoded_feat.unsqueeze(1).expand(-1, meshgrid.size(1), -1)  # Size: (B, 32768, 512)
+            inputs = torch.cat([encoded_feat_expanded, meshgrid], dim=-1)  # Size: (B, 32768, 512 + 3)
+            input = inputs.view(-1, 515)
+            # Pass through the decoder
+            occupancy = self.decoder(inputs)  # Size: (B*32768, 1)
+
+            occupancy = occupancy.view(B, meshgrid.size(1), -1)  # Size: (B, 32768, 1)
+            # Reshape occupancy to match the desired output shape
+            occupancy = occupancy.permute(0, 2, 1).view(B, 32, 32, 32)  # Size: (B, 1, 32, 32, 32)
+
+            return occupancy
+
+            # voxels_in = self.decoder_in(encoded_feat).view(-1,1,24,24,24)
+            # voxels_pred = self.decoder(voxels_in)
+            # self.extra_feature_ = self.extra_feature.repeat(voxels_in.shape[0],1,1,1,1)
+            # voxels_pred = torch.cat((voxels_pred,self.extra_feature_),axis=1)
+            # voxels_pred = self.decoder_out(voxels_pred)
+            # # print("Here")
+            # return voxels_pred
             # image_features = encoded_feat.unsqueeze(1)  # Size becomes (b, 1, 512)
 
             # # Expand dimensions to match the coordinates size
