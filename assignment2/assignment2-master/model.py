@@ -190,8 +190,7 @@ class SingleViewto3D(nn.Module):
                 nn.LeakyReLU(),
                 nn.Linear(2048, 4096),
                 nn.LeakyReLU(),
-                nn.Linear(4096, 1),
-                nn.Sigmoid()
+                nn.Linear(4096, 1)
             )
             
 
@@ -280,17 +279,17 @@ class SingleViewto3D(nn.Module):
             coords = torch.linspace(-1, 1, 32)
             meshgrid = torch.stack(torch.meshgrid(coords, coords, coords), -1)  # Size: (32, 32, 32, 3)
             meshgrid = meshgrid.reshape(-1, 3)  # Size: (32768, 3)
-
+            meshgrid = meshgrid.unsqueeze(0).repeat(B,1,1)
             # Add sampled_points to encoded_feat
             encoded_feat_expanded = encoded_feat.unsqueeze(1).expand(-1, meshgrid.size(1), -1)  # Size: (B, 32768, 512)
-            inputs = torch.cat([encoded_feat_expanded, meshgrid], dim=-1)  # Size: (B, 32768, 512 + 3)
+            inputs = torch.cat([encoded_feat_expanded.to(self.device), meshgrid.to(self.device)], dim=-1)  # Size: (B, 32768, 512 + 3)
             input = inputs.view(-1, 515)
             # Pass through the decoder
             occupancy = self.decoder(inputs)  # Size: (B*32768, 1)
 
             occupancy = occupancy.view(B, meshgrid.size(1), -1)  # Size: (B, 32768, 1)
             # Reshape occupancy to match the desired output shape
-            occupancy = occupancy.permute(0, 2, 1).view(B, 32, 32, 32)  # Size: (B, 1, 32, 32, 32)
+            occupancy = occupancy.permute(0, 2, 1).view(B, 1, 32, 32, 32)  # Size: (B, 1, 32, 32, 32)
 
             return occupancy
 
