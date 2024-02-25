@@ -289,6 +289,7 @@ class NeuralRadianceField(torch.nn.Module):
     def __init__(
         self,
         cfg,
+        view_dep: bool = True
     ):
         super().__init__()
 
@@ -298,7 +299,44 @@ class NeuralRadianceField(torch.nn.Module):
         embedding_dim_xyz = self.harmonic_embedding_xyz.output_dim
         embedding_dim_dir = self.harmonic_embedding_dir.output_dim
 
-        pass
+        self.mlp_skip = MLPWithInputSkips(
+            n_layers=cfg.n_layers_xyz,
+            input_dim=embedding_dim_xyz,
+            output_dim=cfg.n_hidden_neurons_xyz,
+            skip_dim=0,
+            hidden_dim=cfg.n_hidden_neurons_xyz,
+            input_skips=[],
+        )
+        self.view_dep = view_dep
+        if self.view_dep:
+            self.linear = torch.nn.Linear(cfg.n_hidden_neurons_xyz, cfg.n_hidden_neurons_xyz+1)
+            self.mlp_feature = MLPWithInputSkips(
+            n_layers=cfg.append_xyz[0],
+            input_dim=embedding_dim_dir + cfg.n_hidden_neurons_xyz,
+            output_dim=cfg.n_hidden_neurons_dir,
+            skip_dim=0,
+            hidden_dim=cfg.n_hidden_neurons_dir,
+            input_skips=[],
+            )
+            self.feature_linear = torch.nn.Linear(cfg.n_hidden_neurons_dir, 3)
+        else:
+            self.linear = torch.nn.Linear(cfg.n_hidden_neurons_xyz, 4)
+
+    def forward(self, ray_bundle):
+        embedding_xyz = self.harmonic_embedding_xyz(ray_bundle.sample_points.view(-1, 3))
+        y = self.mlp_skip(x=embedding_xyz, z=embedding_xyz)
+        if self.view_dep:
+            y = self.linear(y)
+            embedding_dir = self.harmonic_embedding_dir(ray_bundle.directions.unsqueeze(0).repeat(
+                ray_bundle.sample_points.size(1),1,1).view(-1, 3))
+            feature = self.mlp_feature(x=torch.cat((embedding_dir, y[:, 1:]), dim=1), z=torch.cat((embedding_dir, y[:, 1:]), dim=1))
+            feature = self.feature_linear(feature)
+            out = {'density': torch.nn.ReLU()(y[:, 0].reshape(-1, 1)), 'feature': torch.nn.Sigmoid()(feature)}
+        else:
+            y = self.linear(y)
+            out = {'density': torch.nn.ReLU()(y[:, 0].reshape(-1, 1)), 'feature': torch.nn.Sigmoid()(y[:, 1:])}
+
+        return out
 
 
 class NeuralSurface(torch.nn.Module):
