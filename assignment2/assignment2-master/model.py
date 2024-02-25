@@ -15,51 +15,6 @@ class ReshapeLayer(nn.Module):
     def forward(self, x):
         return x.reshape(self.shape)
     
-class ResnetBlockFC(nn.Module):
-    ''' Fully connected ResNet Block class.
-
-    Args:
-        size_in (int): input dimension
-        size_out (int): output dimension
-        size_h (int): hidden dimension
-    '''
-
-    def __init__(self, size_in, size_out=None, size_h=None):
-        super().__init__()
-        # Attributes
-        if size_out is None:
-            size_out = size_in
-
-        if size_h is None:
-            size_h = min(size_in, size_out)
-
-        self.size_in = size_in
-        self.size_h = size_h
-        self.size_out = size_out
-        # Submodules
-        self.fc_0 = nn.Linear(size_in, size_h)
-        self.fc_1 = nn.Linear(size_h, size_out)
-        self.actvn = nn.ReLU()
-
-        if size_in == size_out:
-            self.shortcut = None
-        else:
-            self.shortcut = nn.Linear(size_in, size_out, bias=False)
-        # Initialization
-        nn.init.zeros_(self.fc_1.weight)
-
-    def forward(self, x):
-        net = self.fc_0(self.actvn(x))
-        dx = self.fc_1(self.actvn(net))
-
-        if self.shortcut is not None:
-            x_s = self.shortcut(x)
-        else:
-            x_s = x
-
-        return x_s + dx
-
-
 class SingleViewto3D(nn.Module):
     def __init__(self, args):
         super(SingleViewto3D, self).__init__()
@@ -79,59 +34,59 @@ class SingleViewto3D(nn.Module):
             # Input: b x 512
             # Output: b x 32 x 32 x 32
             # TODO:
-            self.decoder = nn.Sequential(
-                nn.Linear(512, 1024), # b x 512 -> # b x 2048
-                nn.Linear(1024, 8*6**3),
-                nn.Unflatten(-1, (8, 6, 6, 6)),
-                nn.ConvTranspose3d(8,8,3,stride=1, padding=0, output_padding=0, groups=1, bias=True,dilation=1),
-                nn.BatchNorm3d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-                nn.ReLU(True),
-                nn.ConvTranspose3d(8, 16, 3, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
-                nn.BatchNorm3d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-                nn.ReLU(True),
-                nn.ConvTranspose3d(16, 32, 3, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
-                nn.BatchNorm3d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-                nn.ReLU(True),
-                nn.ConvTranspose3d(32, 16, 5, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
-                nn.BatchNorm3d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-                nn.ReLU(True),
-                nn.ConvTranspose3d(16, 8, 5, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
-                nn.BatchNorm3d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-                nn.ReLU(True),
-                nn.ConvTranspose3d(8, 4, 7, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
-                nn.BatchNorm3d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-                nn.ReLU(True),
-                nn.ConvTranspose3d(4, 4, 7, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
-                nn.BatchNorm3d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
-                nn.ReLU(True),
-                nn.ConvTranspose3d(4, 1, 1, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1)
-            )
-            # self.decoder =  
             # self.decoder = nn.Sequential(
-            #     # Attempt 1
-            #     nn.Linear(512, 512*2*2*2), # b x 512 -> # b x 2048
-            #     nn.Unflatten(-1, (512, 2, 2, 2)), # b x 2048 -> b x 256 x 2 x 2 x 2
-            #     nn.ConvTranspose3d(512, 256, kernel_size=4, stride=2, bias=False, padding=1), # b x 256 x 2 x 2 x 2 -> b x 128 x 2 x 2 x 2
-            #     nn.BatchNorm3d(256),
-            #     nn.ReLU(),
-            #     nn.ConvTranspose3d(256, 128, kernel_size=4, stride=2, bias=False, padding=1), # b x 128 x 2 x 2 x 2 -> b x 64 x 2 x 2 x 2
-            #     nn.BatchNorm3d(128),
-            #     nn.ReLU(),
-            #     nn.ConvTranspose3d(128, 64, kernel_size=4, stride=2, bias=False, padding=1), # b x 64 x 2 x 2 x 2 -> b x 32 x 2 x 2 x 2
-            #     nn.BatchNorm3d(64),
-            #     nn.ReLU(),
-            #     nn.ConvTranspose3d(64, 32, kernel_size=4, stride=2, bias=False, padding=1), # b x 32 x 2 x 2 x 2 -> b x 8 x 2 x 2 x 2
-            #     nn.BatchNorm3d(32),
-            #     # nn.ReLU(),
-            #     # nn.ConvTranspose3d(32, 16, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
-            #     # nn.BatchNorm3d(16),
-            #     # nn.ReLU(),
-            #     # nn.ConvTranspose3d(16, 8, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
-            #     # nn.BatchNorm3d(8),
-            #     # nn.ReLU(),
-            #     nn.ConvTranspose3d(32, 1, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
-            #     # nn.Sigmoid()
-            # )   
+            #     nn.Linear(512, 1024), # b x 512 -> # b x 2048
+            #     nn.Linear(1024, 8*6**3),
+            #     nn.Unflatten(-1, (8, 6, 6, 6)),
+            #     nn.ConvTranspose3d(8,8,3,stride=1, padding=0, output_padding=0, groups=1, bias=True,dilation=1),
+            #     nn.BatchNorm3d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            #     nn.ReLU(True),
+            #     nn.ConvTranspose3d(8, 16, 3, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
+            #     nn.BatchNorm3d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            #     nn.ReLU(True),
+            #     nn.ConvTranspose3d(16, 32, 3, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
+            #     nn.BatchNorm3d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            #     nn.ReLU(True),
+            #     nn.ConvTranspose3d(32, 16, 5, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
+            #     nn.BatchNorm3d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            #     nn.ReLU(True),
+            #     nn.ConvTranspose3d(16, 8, 5, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
+            #     nn.BatchNorm3d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            #     nn.ReLU(True),
+            #     nn.ConvTranspose3d(8, 4, 7, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
+            #     nn.BatchNorm3d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            #     nn.ReLU(True),
+            #     nn.ConvTranspose3d(4, 4, 7, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1),
+            #     nn.BatchNorm3d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+            #     nn.ReLU(True),
+            #     nn.ConvTranspose3d(4, 1, 1, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1)
+            # )
+            # self.decoder =  
+            self.decoder = nn.Sequential(
+                # Attempt 1
+                nn.Linear(512, 512*2*2*2), # b x 512 -> # b x 2048
+                nn.Unflatten(-1, (512, 2, 2, 2)), # b x 2048 -> b x 256 x 2 x 2 x 2
+                nn.ConvTranspose3d(512, 256, kernel_size=4, stride=2, bias=False, padding=1), # b x 256 x 2 x 2 x 2 -> b x 128 x 2 x 2 x 2
+                nn.BatchNorm3d(256),
+                nn.ReLU(),
+                nn.ConvTranspose3d(256, 128, kernel_size=4, stride=2, bias=False, padding=1), # b x 128 x 2 x 2 x 2 -> b x 64 x 2 x 2 x 2
+                nn.BatchNorm3d(128),
+                nn.ReLU(),
+                nn.ConvTranspose3d(128, 64, kernel_size=4, stride=2, bias=False, padding=1), # b x 64 x 2 x 2 x 2 -> b x 32 x 2 x 2 x 2
+                nn.BatchNorm3d(64),
+                nn.ReLU(),
+                nn.ConvTranspose3d(64, 32, kernel_size=4, stride=2, bias=False, padding=1), # b x 32 x 2 x 2 x 2 -> b x 8 x 2 x 2 x 2
+                nn.BatchNorm3d(32),
+                # nn.ReLU(),
+                # nn.ConvTranspose3d(32, 16, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
+                # nn.BatchNorm3d(16),
+                # nn.ReLU(),
+                # nn.ConvTranspose3d(16, 8, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
+                # nn.BatchNorm3d(8),
+                # nn.ReLU(),
+                nn.ConvTranspose3d(32, 1, kernel_size=1, bias=False), # b x 8 x 2 x 2 x 2 -> b x 1 x 2 x 2 x 2
+                # nn.Sigmoid()
+            )   
            
         elif args.type == "point":
             # Input: b x 512
@@ -190,7 +145,8 @@ class SingleViewto3D(nn.Module):
                 nn.LeakyReLU(),
                 nn.Linear(2048, 4096),
                 nn.LeakyReLU(),
-                nn.Linear(4096, 1)
+                nn.Linear(4096, 1),
+                nn.Sigmoid()
             )
             
 
@@ -279,17 +235,19 @@ class SingleViewto3D(nn.Module):
             coords = torch.linspace(-1, 1, 32)
             meshgrid = torch.stack(torch.meshgrid(coords, coords, coords), -1)  # Size: (32, 32, 32, 3)
             meshgrid = meshgrid.reshape(-1, 3)  # Size: (32768, 3)
-            meshgrid = meshgrid.unsqueeze(0).repeat(B,1,1)
+            # make meshgrid of size (B, 32768, 3)
+            meshgrid = meshgrid.unsqueeze(0).repeat(B, 1, 1).to(self.device)  # Size: (b, 32768, 3)
+
             # Add sampled_points to encoded_feat
             encoded_feat_expanded = encoded_feat.unsqueeze(1).expand(-1, meshgrid.size(1), -1)  # Size: (B, 32768, 512)
-            inputs = torch.cat([encoded_feat_expanded.to(self.device), meshgrid.to(self.device)], dim=-1)  # Size: (B, 32768, 512 + 3)
+            inputs = torch.cat([encoded_feat_expanded, meshgrid], dim=-1)  # Size: (B, 32768, 512 + 3)
             input = inputs.view(-1, 515)
             # Pass through the decoder
             occupancy = self.decoder(inputs)  # Size: (B*32768, 1)
 
             occupancy = occupancy.view(B, meshgrid.size(1), -1)  # Size: (B, 32768, 1)
             # Reshape occupancy to match the desired output shape
-            occupancy = occupancy.permute(0, 2, 1).view(B, 1, 32, 32, 32)  # Size: (B, 1, 32, 32, 32)
+            occupancy = occupancy.permute(0, 2, 1).view(B, 32, 32, 32)  # Size: (B, 1, 32, 32, 32)
 
             return occupancy
 

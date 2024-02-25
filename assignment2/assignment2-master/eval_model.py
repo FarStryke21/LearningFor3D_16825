@@ -162,16 +162,7 @@ def evaluate_model(args):
 
             predictions = model(images_gt, args)
             print(f"Predictions: {predictions.shape}")
-            #if step == 0 :
-             #   print(f"Saliency Map {step}")
-                # Extract the saliency map
-                #extractor = FeatureExtractor(model)
-              #  # Save activation map for all the layers in the model
-    #            image = images_gt.cpu().numpy()
-                #extractor.set_image(image)
-                #extractor.display_from_map(layer_no=1)
-                #extractor.write_video(out_size(1200, 800), file_name = f"data/q26/{args.type}.avi", time_for_layer=30, transition_perc_layer=0.2)
-        
+    
             if args.type == "vox" or args.type == "implicit":
                 predictions = predictions.permute(0,1,4,3,2)
             if  args.type == "implicit":

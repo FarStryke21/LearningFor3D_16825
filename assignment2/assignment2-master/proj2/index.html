@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>c342f9d4e8b84916903dd955778fbaf9</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 45em;
+      padding-left: 25px;
+      padding-right: 25px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="assignment-2" class="cell markdown">
+<h2 style="text-align: center;">Assignment 2</h2>
+<p style="text-align: center;">Aman Chulawala</p>
+</section>
+<section id="task-1-exploring-loss-functions" class="cell markdown">
+<h3>Task 1: Exploring Loss Functions</h3>
+<p><strong>Prompt 1.1:</strong> Voxel Grid</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Voxel Grid</th>
+<th><img src="data/q1/1_voxelsrc.gif" alt="Voxel Source" /></th>
+<th><img src="data/q1/1_voxeltgt.gif" alt="Voxel Target" /></th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p><strong>Prompt 1.2:</strong> Point Cloud</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Point Cloud</th>
+<th><img src="data/q1/1_pcdsrc.gif" alt="Point Cloud Source" /></th>
+<th><img src="data/q1/1_pcdtgt.gif" alt="Point Cloud Target" /></th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p><strong>Prompt 1.3:</strong> Mesh</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Mesh</th>
+<th><img src="data/q1/1_meshsrc.gif" alt="Mesh Source" /></th>
+<th><img src="data/q1/1_meshtgt.gif" alt="Mesh Target" /></th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<hr />
+</section>
+<section id="task-2-reconstruction-from-2d" class="cell markdown">
+<h3>Task 2: Reconstruction from 2D</h3>
+<p><strong>Prompt 2.1:</strong> Voxel</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input Image</th>
+<th>Ground Truth Mesh</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="data/q21/gt_img_0.png" alt="Example 1 Image" /></td>
+<td><img src="data/q21/gt_mesh_0.gif" alt="Example 1 Mesh" /></td>
+<td><img src="data/q21/0_vox.gif" alt="Example 1 Prediction" /></td>
+</tr>
+<tr class="even">
+<td><img src="data/q21/gt_img_20.png" alt="Example 2 Image" /></td>
+<td><img src="data/q21/gt_mesh_20.gif" alt="Example 2 Mesh" /></td>
+<td><img src="data/q21/20_vox.gif" alt="Example 2 Prediction" /></td>
+</tr>
+<tr class="odd">
+<td><img src="data/q21/gt_img_185.png" alt="Example 3 Image" /></td>
+<td><img src="data/q21/gt_mesh_185.gif" alt="Example 3 Mesh" /></td>
+<td><img src="data/q21/185_vox.gif" alt="Example 3 Prediction" /></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Prompt 2.2:</strong> Point Cloud</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input Image</th>
+<th>Ground Truth Mesh</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="data/q22/gt_img_100.png" alt="Example 1 Image" /></td>
+<td><img src="data/q22/gt_pcd_100.gif" alt="Example 1 Mesh" /></td>
+<td><img src="data/q22/100_point.gif" alt="Example 1 Prediction" /></td>
+</tr>
+<tr class="even">
+<td><img src="data/q22/gt_img_350.png" alt="Example 2 Image" /></td>
+<td><img src="data/q22/gt_pcd_350.gif" alt="Example 2 Mesh" /></td>
+<td><img src="data/q22/350_point.gif" alt="Example 2 Prediction" /></td>
+</tr>
+<tr class="odd">
+<td><img src="data/q22/gt_img_650.png" alt="Example 3 Image" /></td>
+<td><img src="data/q22/gt_pcd_650.gif" alt="Example 3 Mesh" /></td>
+<td><img src="data/q22/650_point.gif" alt="Example 3 Prediction" /></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Prompt 2.3:</strong> Mesh</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input Image</th>
+<th>Ground Truth Mesh</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="data/q23/gt_img_100.png" alt="Example 1 Image" /></td>
+<td><img src="data/q23/gt_mesh_100.gif" alt="Example 1 Mesh" /></td>
+<td><img src="data/q23/100_mesh.gif" alt="Example 1 Prediction" /></td>
+</tr>
+<tr class="even">
+<td><img src="data/q23/gt_img_400.png" alt="Example 2 Image" /></td>
+<td><img src="data/q23/gt_mesh_400.gif" alt="Example 2 Mesh" /></td>
+<td><img src="data/q23/400_mesh.gif" alt="Example 2 Prediction" /></td>
+</tr>
+<tr class="odd">
+<td><img src="data/q23/gt_img_600.png" alt="Example 3 Image" /></td>
+<td><img src="data/q23/gt_mesh_600.gif" alt="Example 3 Mesh" /></td>
+<td><img src="data/q23/600_mesh.gif" alt="Example 3 Prediction" /></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Prompt 2.4:</strong> Quantitative comparisions</p>
+
+<table>
+<tr>
+<th>Evaluation Voxel</th>
+<th>Evaluation Point</th>
+<th>Evaluation Mesh</th>
+</tr>
+<tr>
+<td><img src="data/q24/eval_vox.png" alt="Voxel Eval" /></td>
+<td><img src="data/q24/eval_point.png" alt="Point Eval" /></td>
+<td><img src="data/q24/eval_mesh.png" alt="Mesh Eval" /></td>
+</tr>
+</table>
+<p><strong>Quantitative Comparison:</strong> The F1 score demonstrates a
+notable disparity among the three methods, showcasing the remarkable
+performance of point clouds over voxel grids and meshes. This pronounced
+superiority of point clouds can be attributed to their inherent
+flexibility and unparalleled precision in depicting intricate 3D shapes.
+Unlike voxel grids, which struggle due to their binary representation
+that often oversimplifies complex forms, point clouds excel in capturing
+fine details and nuances, thereby achieving higher fidelity in shape
+representation.</p>
+<p>Furthermore, while meshes rely on faces to convey shape continuity,
+they often encounter limitations in accurately representing the
+intricate geometry of 3D objects. Their reliance on surface
+approximation may result in inaccuracies, particularly in complex
+structures where finer details are crucial. Thus, despite their
+potential in certain applications, meshes fall short compared to point
+clouds in faithfully capturing the intricacies of 3D shapes.</p>
+<p>In summary, the superior performance of point clouds in F1 scoring
+underscores their versatility and precision, making them the preferred
+choice for tasks requiring accurate representation of 3D shapes, while
+voxel grids and meshes exhibit limitations that hinder their
+effectiveness in such scenarios.</p>
+<hr />
+<p><strong>Prompt 2.5:</strong> Hyperparam Variation</p>
+<p>I decided to vary the mesh smoothness factor of the loss and observe
+performance of the mesh model. I explored the impact of varying the
+smoothing parameter, w_smooth, using values of 0.1, 1, and 2, after
+10,000 training iterations due to resource and time limitations. Despite
+a decrease in F1 scores with increasing w_smooth, the visual appearance
+of the reconstructed mesh is notably affected. Even though the F1 score
+changes minimally, any level of smoothing (w_smooth &gt; 0) leads to
+smoother surface finishes, reducing sharpness. Excessive smoothing
+negatively impacts performance, likely due to the loss of critical
+geometric details essential for precise reconstruction.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input Image</th>
+<th>Ground Truth Mesh</th>
+<th>Prediction for w=0.1</th>
+<th>Prediction for w=1</th>
+<th>Prediction for w=2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="data/q25/gt_img_100.png" alt="Example 1 Image" /></td>
+<td><img src="data/q25/gt_mesh_100.gif" alt="Example 1 Mesh" /></td>
+<td><img src="data/q25/wdef/100_mesh.gif"
+alt="Example 1 Prediction" /></td>
+<td><img src="data/q25/w1/100_mesh.gif"
+alt="Example 1 Prediction" /></td>
+<td><img src="data/q25/w2/100_mesh.gif"
+alt="Example 1 Prediction" /></td>
+</tr>
+<tr class="even">
+<td><img src="data/q25/gt_img_400.png" alt="Example 2 Image" /></td>
+<td><img src="data/q25/gt_mesh_400.gif" alt="Example 2 Mesh" /></td>
+<td><img src="data/q25/wdef/400_mesh.gif"
+alt="Example 2 Prediction" /></td>
+<td><img src="data/q25/w1/400_mesh.gif"
+alt="Example 1 Prediction" /></td>
+<td><img src="data/q25/w2/400_mesh.gif"
+alt="Example 1 Prediction" /></td>
+</tr>
+<tr class="odd">
+<td><img src="data/q25/gt_img_600.png" alt="Example 3 Image" /></td>
+<td><img src="data/q25/gt_mesh_600.gif" alt="Example 3 Mesh" /></td>
+<td><img src="data/q25/wdef/600_mesh.gif"
+alt="Example 3 Prediction" /></td>
+<td><img src="data/q25/w1/600_mesh.gif"
+alt="Example 1 Prediction" /></td>
+<td><img src="data/q25/w2/600_mesh.gif"
+alt="Example 1 Prediction" /></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td><img src="data/q25/eval_mesh_0.png" alt="Example 3 Image" /></td>
+<td><img src="data/q25/eval_mesh_1.png" alt="Example 3 Image" /></td>
+<td><img src="data/q25/eval_mesh_2.png" alt="Example 3 Image" /></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Prompt 2.6:</strong> Model Interpretation</p>
+<table>
+<tr>
+<td><img src="data/q26/output_1.png" alt="Example 3 Image" /></td> 
+<td><img src="data/q26/output_2.png" alt="Example 3 Image" /></td>
+<td><img src="data/q26/output.png" alt="Example 3 Image" /></td>
+</tr>
+</table>
+<p>In the realm of model evaluation and performance analysis,
+understanding the significance of various features is crucial for
+refining and optimizing algorithms. Leveraging the MapExtrackt package,
+I developed a short function to elucidate the performance of my models
+by highlighting salient features within images. This approach allows for
+a deeper understanding of model predictions and provides insights into
+areas of improvement.</p>
+<p>By employing MapExtrackt's robust feature extraction capabilities, I
+can effectively pinpoint important elements within images and assess how
+well my models capture and interpret them. This function facilitates a
+comprehensive evaluation process, enabling me to visualize and analyze
+the strengths and weaknesses of different algorithms. Through this
+approach, I tried to refine model architectures, fine-tune
+hyperparameters, and ultimately enhance overall performance in various
+applications.</p>
+<hr />
+</section>
+<section id="task-3-training-with-entire-dataset" class="cell markdown">
+<h3>Task 3: Training with entire dataset</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input Image</th>
+<th>Ground Truth Mesh</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="data/q33/gt_img_50.png" alt="Example 1 Image" /></td>
+<td><img src="data/q33/gt_mesh_50.gif" alt="Example 1 Mesh" /></td>
+<td><img src="data/q33/50_point.gif" alt="Example 1 Prediction" /></td>
+</tr>
+<tr class="even">
+<td><img src="data/q33/gt_img_450.png" alt="Example 2 Image" /></td>
+<td><img src="data/q33/gt_mesh_450.gif" alt="Example 2 Mesh" /></td>
+<td><img src="data/q33/450_point.gif" alt="Example 2 Prediction" /></td>
+</tr>
+<tr class="odd">
+<td><img src="data/q33/gt_img_1250.png" alt="Example 3 Image" /></td>
+<td><img src="data/q33/gt_mesh_1250.gif" alt="Example 3 Mesh" /></td>
+<td><img src="data/q33/1250_point.gif"
+alt="Example 3 Prediction" /></td>
+</tr>
+</tbody>
+</table>
+<p>Evaluation Results</p>
+<p><img src="data/q33/eval_point.png" alt="Example 3 Image" /></p>
+<p>Comparing training on one class versus three classes, quantitative
+results showed similar outcomes, but with three classes requiring
+significantly higher training and inference times. Qualitatively, visual
+results were also comparable, indicating that while multiple classes may
+offer more robustness, single-class training can be more computationally
+efficient. Overall, the decision depends on the trade-off between model
+robustness and computational resources.</p>
+</section>
+<section id="extra-credit" class="cell markdown">
+<h3>Extra Credit</h3>
+<p>I attempted the implicit reconstruction with Neural Networks. These
+are the results I got </p>
+<table>
+<tr>
+<th>Input Image</th>
+<th>Ground Truth Mesh</th>
+<th>Prediction</th>
+</tr>
+<tr>
+<td><img src="data/q31/gt_img_0.png" alt="Example 1 Image" /></td>
+<td><img src="data/q31/gt_mesh_0.gif" alt="Example 1 Mesh" /></td>
+<td><img src="data/q31/0_implicit.gif" alt="Example 1 Prediction" /></td>
+</tr>
+</table>
+</section>
+<div class="cell markdown">
+
+</div>
+</body>
+</html>
