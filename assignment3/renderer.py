@@ -145,7 +145,21 @@ class SphereTracingRenderer(torch.nn.Module):
         #   in order to compute intersection points of rays with the implicit surface
         # 2) Maintain a mask with the same batch dimension as the ray origins,
         #   indicating which points hit the surface, and which do not
-        pass
+        N = origins.shape[0]
+        t = torch.zeros((N, 1)).to("cuda")
+
+        eps = 1e-6
+        for iter in range(self.max_iters):
+            points = origins + t*directions
+
+            f_p = implicit_fn(points).view(N, 1)
+            mask = f_p <= eps
+
+            if torch.sum(mask) == N:
+                break
+            
+            t += f_p
+        return points, mask
 
     def forward(
         self,
@@ -195,7 +209,9 @@ class SphereTracingRenderer(torch.nn.Module):
 
 def sdf_to_density(signed_distance, alpha, beta):
     # TODO (Q7): Convert signed distance to density with alpha, beta parameters
-    pass
+    lap_dist = torch.distributions.laplace.Laplace(0, beta)
+
+    return alpha * lap_dist.cdf(-signed_distance)
 
 class VolumeSDFRenderer(VolumeRenderer):
     def __init__(
@@ -232,7 +248,7 @@ class VolumeSDFRenderer(VolumeRenderer):
 
             # Call implicit function with sample points
             distance, color = implicit_fn.get_distance_color(cur_ray_bundle.sample_points)
-            density = None # TODO (Q7): convert SDF to density
+            density = sdf_to_density(distance, self.alpha, self.beta) # TODO (Q7): convert SDF to density
 
             # Compute length of each ray segment
             depth_values = cur_ray_bundle.sample_lengths[..., 0]
