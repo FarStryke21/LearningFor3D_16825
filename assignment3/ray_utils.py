@@ -4,7 +4,7 @@ from typing import List, NamedTuple
 import torch
 import torch.nn.functional as F
 from pytorch3d.renderer.cameras import CamerasBase
-
+import numpy as np
 
 # Convenience class wrapping several ray inputs:
 #   1) Origins -- ray origins
