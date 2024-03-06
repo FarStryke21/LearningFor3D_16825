@@ -366,6 +366,7 @@ def train_nerf(
                     model, create_surround_cameras(4.0, n_poses=20, up=(0.0, 0.0, 1.0), focal_length=2.0),
                     cfg.data.image_size, file_prefix='nerf'
                 )
+                print("Saving GIF ... ")
                 imageio.mimsave('images/part_3.gif', [np.uint8(im * 255) for im in test_images])
 
 
