@@ -28,6 +28,7 @@ from pytorch3d.renderer import (
 )
 
 
+from tqdm import tqdm
 
 import mcubes
 
@@ -177,7 +178,7 @@ def get_mesh_renderer(image_size=512, lights=None, device=None):
     return renderer
 
 
-def implicit_to_mesh(implicit_fn, scale=0.5, grid_size=128, device='cpu', color=[0.7, 0.7, 1], chunk_size=262144, thresh=0):
+def implicit_to_mesh(implicit_fn, scale=0.5, grid_size=128, device='cpu', color=[0.7, 0.7, 1], chunk_size=100000, thresh=0):
     Xs = torch.linspace(-1*scale, scale, grid_size+1).to(device)
     Ys = torch.linspace(-1*scale, scale, grid_size+1).to(device)
     Zs = torch.linspace(-1*scale, scale, grid_size+1).to(device)
@@ -186,15 +187,22 @@ def implicit_to_mesh(implicit_fn, scale=0.5, grid_size=128, device='cpu', color=
     grid = grid.view(-1, 3)
     num_points = grid.shape[0]
     sdfs = torch.zeros(num_points)
+    #print(f"Num of points : {num_points}")
+    #print("Begin Conversion!")
     
     with torch.no_grad():
-        for chunk_start in range(0, num_points, chunk_size):
+        for chunk_start in tqdm(range(0, num_points, chunk_size)):
+            #print("1")
             torch.cuda.empty_cache()
+            #print("2")
             chunk_end = min(num_points, chunk_start+chunk_size)
+            #print("3")
+            c = grid[chunk_start:chunk_end, :]
+            #print(f"Shape of input: {c.shape}")
             sdfs[chunk_start:chunk_end] = implicit_fn.get_distance(grid[chunk_start:chunk_end,:]).view(-1)
+            #print("4")
 
         sdfs = sdfs.view(grid_size+1, grid_size+1, grid_size+1)
-
     vertices, triangles = mcubes.marching_cubes(sdfs.cpu().numpy(), thresh)
     # normalize to [-scale, scale]
     vertices = (vertices/grid_size - 0.5)*2*scale
@@ -224,8 +232,10 @@ def render_geometry(
     device = list(model.parameters())[0].device
     lights = pytorch3d.renderer.PointLights(location=[[0, 0, -3]], device=device)
     mesh_renderer = get_mesh_renderer(image_size=image_size[0], lights=lights, device=device)
+    print("Mesh Renderer defined!")
 
     mesh = implicit_to_mesh(model.implicit_fn, scale=3, device=device, thresh=thresh)
+    print("Model Conversion to mesh complete!")
     all_images = []
     with torch.no_grad():
         torch.cuda.empty_cache()
