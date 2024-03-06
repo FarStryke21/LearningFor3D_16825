@@ -385,7 +385,9 @@ class NeuralSurface(torch.nn.Module):
 
         embedding_xyz = self.harmonic_embedding_xyz(points)
         y = self.mlp_skip(x=embedding_xyz, z=embedding_xyz)
+        print(f'y: {y.shape}')
         dist = self.dist_linear(y)
+        print(f'dist: {dist.shape}')
 
         return dist
     
