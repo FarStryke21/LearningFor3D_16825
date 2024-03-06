@@ -289,7 +289,7 @@ class NeuralRadianceField(torch.nn.Module):
     def __init__(
         self,
         cfg,
-        view_dep: bool = True
+        view_dep: bool = False
     ):
         super().__init__()
 
