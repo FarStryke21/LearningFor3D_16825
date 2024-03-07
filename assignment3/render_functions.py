@@ -28,8 +28,6 @@ from pytorch3d.renderer import (
 )
 
 
-from tqdm import tqdm
-
 import mcubes
 
 def get_device():
@@ -191,7 +189,7 @@ def implicit_to_mesh(implicit_fn, scale=0.5, grid_size=128, device='cpu', color=
     #print("Begin Conversion!")
     
     with torch.no_grad():
-        for chunk_start in tqdm(range(0, num_points, chunk_size)):
+        for chunk_start in range(0, num_points, chunk_size):
             #print("1")
             torch.cuda.empty_cache()
             #print("2")
