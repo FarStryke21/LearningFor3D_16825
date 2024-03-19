@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>ef9210cbb7e44ede9fc03f80ac7cfe1f</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 45em;
+      padding-left: 25px;
+      padding-right: 25px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+      animation: linear infinite;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="assignment-3" class="cell markdown">
+<h1>Assignment 3</h1>
+<p>Aman Chulawala</p>
+</section>
+<section id="a-neural-volume-rendering" class="cell markdown">
+<h2>A. Neural Volume Rendering</h2>
+</section>
+<section id="task-0-transmittance-calculations" class="cell markdown">
+<h3>Task 0: Transmittance Calculations</h3>
+<p><img src="data/figure1.png" alt="calculation" /></p>
+</section>
+<section id="task-13-ray-sampling-5-points" class="cell markdown">
+<h3>Task 1.3. Ray sampling (5 points)</h3>
+<table>
+<thead>
+<tr class="header">
+<th><img src="data/1.3-grid.png" alt="Image 1" /></th>
+<th><img src="data/1.3-rays.png" alt="Image 2" /></th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</section>
+<section id="task-14-point-sampling-5-points" class="cell markdown">
+<h3>Task 1.4. Point Sampling (5 points)</h3>
+<p><img src="data/1.4_samples_pc.png" alt="Image 1" /></p>
+</section>
+<section id="task-15-volume-rendering-20-points" class="cell markdown">
+<h3>Task 1.5. Volume Rendering (20 points)</h3>
+<table>
+<thead>
+<tr class="header">
+<th><img src="data/part_1.gif" alt="Image 1" /></th>
+<th><img src="data/1.5_depth.png" alt="Image 2" /></th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</section>
+<section id="task-2-optimizing-a-basic-implicit-volume-10-points"
+class="cell markdown">
+<h3>Task 2. Optimizing a basic implicit volume (10 points)</h3>
+<p><img src="data/part_2.gif" alt="Image 1" /></p>
+</section>
+<section id="task-3-optimizing-a-neural-radiance-field-nerf-20-points"
+class="cell markdown">
+<h3>Task 3. Optimizing a Neural Radiance Field (NeRF) (20 points)</h3>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Render</th>
+<th><img src="data/part_3_20.gif" alt="Image" /></th>
+<th><img src="data/part_3_40.gif" alt="Image" /></th>
+<th><img src="data/part_3_60.gif" alt="Image" /></th>
+<th><img src="data/part_3_80.gif" alt="Image" /></th>
+<th><img src="data/part_3_100.gif" alt="Image" /></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Epoch</td>
+<td>20</td>
+<td>40</td>
+<td>60</td>
+<td>80</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="task-41-view-dependence-10-points" class="cell markdown">
+<h3>Task 4.1. View Dependence (10 points)</h3>
+<p><img src="data/part_4_materials_140.gif" alt="Image 1" /></p>
+<p><strong>Discuss the trade-offs between increased view dependence and
+generalization quality</strong></p>
+<p>Trade-offs:</p>
+<ul>
+<li>Increased Realism: By considering the viewing direction, the model
+can produce more lifelike images with accurate reflections and
+shading.</li>
+<li>Risk of Overfitting: If not implemented carefully, the model might
+overfit to the training images, learning view-specific artifacts that
+don’t generalize well to unseen views.</li>
+<li>Generalization Quality: A model with high view dependence might
+struggle to generalize to new viewpoints, especially if the training
+data is limited or lacks variety in viewing angles.</li>
+</ul>
+<p>To balance these trade-offs, it’s important to have a diverse set of
+training views and to possibly regularize the model to prevent
+overfitting.</p>
+</section>
+<section id="b-neural-surface-rendering" class="cell markdown">
+<h2>B. Neural Surface Rendering</h2>
+</section>
+<section id="task-5-sphere-tracing-10pts" class="cell markdown">
+<h3>Task 5. Sphere Tracing (10pts)</h3>
+<p><img src="data/part_5.gif" alt="Image 1" /></p>
+</section>
+<section id="task-6-optimizing-a-neural-sdf-15pts"
+class="cell markdown">
+<h3>Task 6. Optimizing a Neural SDF (15pts)</h3>
+<table>
+<thead>
+<tr class="header">
+<th><img src="data/part_6_input.gif" alt="Image 1" /></th>
+<th><img src="data/part_6.gif" alt="Image 2" /></th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</section>
+<section id="task-7-volsdf-15-pts" class="cell markdown">
+<h3>Task 7. VolSDF (15 pts)</h3>
+<p>Alpha and beta in the context of Signed Distance Functions (SDFs) and
+their impact on training and surface reconstruction.</p>
+<p><strong>Alpha:</strong></p>
+<p>The alpha parameter controls the density (or opacity) of the scene.
+It determines how much light is absorbed or scattered as it travels
+through the medium. A higher alpha value results in a denser medium,
+meaning that light has a harder time passing through it. This
+corresponds to regions in the scene where objects are more solid or
+opaque. In volume rendering, a higher alpha value would make the
+material appear more solid and less transparent. For example, in medical
+imaging, high alpha values might represent dense tissues like bones.</p>
+<p><strong>Beta:</strong></p>
+<p>The beta parameter controls the emission of light from the scene. It
+determines how much light is emitted from each point in the volume. A
+higher beta value leads to more light being emitted from the scene. This
+corresponds to regions where the material emits light (e.g., glowing
+objects, light sources). In volume rendering, high beta values create
+emissive materials (like neon signs or glowing lava). Low beta values
+result in non-emissive materials.</p>
+<p><strong>How does high beta bias your learned SDF? What about low
+beta?</strong></p>
+<p>When beta is high, the model tends to emphasize emissive regions. It
+becomes more sensitive to light sources and bright areas. However, this
+can lead to overfitting if the training data lacks diverse lighting
+conditions. When beta is low, the model focuses less on emissive
+regions. It may struggle to capture subtle lighting effects or glow.
+However, it might generalize better to different lighting
+conditions.</p>
+<p><strong>Would an SDF be easier to train with volume rendering and low
+beta or high beta? Why?</strong></p>
+<p>Training with low beta is generally easier because it reduces the
+complexity of the problem. The model doesn’t need to learn intricate
+lighting interactions. However, it might miss out on important emissive
+features. Training with high beta is more challenging due to increased
+sensitivity to lighting variations. The model must learn to handle
+diverse illumination conditions, which can lead to overfitting.</p>
+<p><strong>Would you be more likely to learn an accurate surface with
+high beta or low beta? Why?</strong></p>
+<p>For accurate surface reconstruction, low beta is preferable. It
+encourages the model to focus on geometric details rather than emissive
+effects. However, it might miss out on fine illumination nuances. While
+high beta captures emissive features well, it might introduce noise and
+artifacts. Achieving an accurate surface with high beta requires careful
+regularization and diverse training data.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Render</th>
+<th><img src="data/part_7_alpha1_beta1.gif" alt="Image" /></th>
+<th><img src="data/part_7_alpha10_beta1.gif" alt="Image" /></th>
+<th><img src="data/part_7_alpha10_beta005.gif" alt="Image" /></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Geometry</td>
+<td><img src="data/part_7_geometry_alpha1_beta1.gif" alt="Image" /></td>
+<td><img src="data/part_7_geometry_alpha10_beta1.gif"
+alt="Image" /></td>
+<td><img src="data/part_7_geometry_alpha10_beta005.gif"
+alt="Image" /></td>
+</tr>
+<tr class="even">
+<td>Alpha</td>
+<td>1</td>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td>Beta</td>
+<td>1</td>
+<td>1</td>
+<td>0.05</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Best Results</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th><img src="data/part_7.gif" alt="Image 1" /></th>
+<th><img src="data/part_7_geometry.gif" alt="Image 2" /></th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</section>
+<section id="task-82-fewer-training-views-10-pts" class="cell markdown">
+<h3>Task 8.2 Fewer Training Views (10 pts)</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>No. of Views</th>
+<th>NeRF Render</th>
+<th>SDF Geometry</th>
+<th>SDF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>100</td>
+<td><img src="data/part_8_NeRF_100.gif" alt="Image" /></td>
+<td><img src="data/part_8_SDF_geometry_100.gif" alt="Image" /></td>
+<td><img src="data/part_8_SDF_100.gif" alt="Image" /></td>
+</tr>
+<tr class="even">
+<td>50</td>
+<td><img src="data/part_8_NeRF_50.gif" alt="Image" /></td>
+<td><img src="data/part_8_SDF_geometry_50.gif" alt="Image" /></td>
+<td><img src="data/part_8_SDF_50.gif" alt="Image" /></td>
+</tr>
+<tr class="odd">
+<td>20</td>
+<td><img src="data/part_8_NeRF_20.gif" alt="Image" /></td>
+<td><img src="data/part_8_SDF_geometry_20.gif" alt="Image" /></td>
+<td><img src="data/part_8_SDF_20.gif" alt="Image" /></td>
+</tr>
+</tbody>
+</table>
+</section>
+</body>
+</html>
