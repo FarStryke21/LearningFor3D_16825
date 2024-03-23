@@ -393,8 +393,9 @@ class Scene:
         """
         # HINT: You can use get the means of 3D Gaussians self.gaussians and calculate
         # the depth using the means and the camera
-        z_vals = self.gaussians.means_3D[:, 2]  # (N,)
-
+        # Transform the z component into camera coordinates
+        z_vals = camera.transform_points_screen(self.gaussians)[:, 2]
+        
         return z_vals
 
     def get_idxs_to_filter_and_sort(self, z_vals: torch.Tensor):
