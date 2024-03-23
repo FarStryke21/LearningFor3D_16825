@@ -53,7 +53,7 @@ def create_renders(args):
             # HINT: Set bg_colour to (1.0, 1.0, 1.0)
             # HINT: Get per_splat from args.gaussians_per_splat
             # HINT: img_size and camera are available above
-            img, depth, mask = scene.render_splats(
+            img, depth, mask = scene.render(
                 camera=camera,
                 img_size=img_size,
                 bg_colour=(1.0, 1.0, 1.0),
