@@ -619,8 +619,10 @@ class Scene:
 
         ### YOUR CODE HERE ###
         # HINT: Can you implement an equation inspired by the equation for colour?
-        z_vals = (z_vals - torch.min(z_vals)) / (torch.max(z_vals) - torch.min(z_vals))
-        depth = torch.sum(z_vals * alphas * transmittance, dim=0)   # (H, W, 1)
+        z_vals = (z_vals - torch.min(z_vals)) / (torch.max(z_vals) - torch.min(z_vals)) * 255
+        depth = z_vals * alphas * transmittance
+        # print(depth)
+        depth = torch.sum(depth, dim=0)   # (H, W, 1)
 
         ### YOUR CODE HERE ###
         # HINT: Can you implement an equation inspired by the equation for colour?
