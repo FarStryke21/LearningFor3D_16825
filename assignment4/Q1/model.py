@@ -237,12 +237,13 @@ class Gaussians:
 
         # HINT: Are quats ever used or optimized for isotropic gaussians? What will their value be?
         # Based on your answers, can you write a more efficient code for the isotropic case?
+        scales.to(self.device)
         if self.is_isotropic:
             cov_3D = torch.eye(3).unsqueeze(0).repeat(len(scales), 1, 1).to(self.device) * scales.unsqueeze(-1)
 
         # HINT: You can use a function from pytorch3d to convert quaternions to rotation matrices.
         else:
-            cov_3D = torch.matmul(quaternion_to_matrix(quats), scales.unsqueeze(-1) * torch.eye(3).unsqueeze(0).repeat(len(scales), 1, 1))
+            cov_3D = torch.matmul(quaternion_to_matrix(quats.to(self.device)), scales.unsqueeze(-1) * torch.eye(3).unsqueeze(0).repeat(len(scales), 1, 1).to(self.device))
 
         return cov_3D
 
