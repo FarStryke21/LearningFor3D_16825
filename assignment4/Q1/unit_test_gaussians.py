@@ -239,22 +239,22 @@ def run_tests():
     if run_test_1():
         counter += 1
     else:
-        print("Test 1 Fail!")
+        print("Test 1 Fail! -> cov_3D computation")
 
     if run_test_2():
         counter += 1
     else:
-        print("Test 2 Fail!")
+        print("Test 2 Fail! -> cov_2D computation")
 
     if run_test_3():
         counter += 1
     else:
-        print("Test 3 Fail!")
+        print("Test 3 Fail! -> means_2D computation")
 
     if run_test_4():
         counter += 1
     else:
-        print("Test 4 Fail!")
+        print("Test 4 Fail! -> evaluate_gaussian_2D computation")
 
     print(f"[{counter}/{total}] Tests Passed")
 

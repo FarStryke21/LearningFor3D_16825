@@ -274,8 +274,7 @@ class Gaussians:
         ### YOUR CODE HERE ###
         # HINT: Can you extract the world to camera rotation matrix (W) from one of the inputs
         # of this function?
-        W =  camera.get_world_to_view_transforms() # (N, 3, 3)
-        W = W[:, :3, :3]
+        W =  camera.get_world_to_view_transform().get_matrix() # (N, 3, 3)
 
         ### YOUR CODE HERE ###
         # HINT: Can you find a function in this file that can help?
@@ -283,7 +282,7 @@ class Gaussians:
 
         ### YOUR CODE HERE ###
         # HINT: Use the above three variables to compute cov_2D
-        cov_2D = torch.matmul(torch.matmul(J, W), torch.matmul(cov_3D, torch.transpose(W, 1, 2)))  # (N, 2, 2)
+        cov_2D = torch.matmul(torch.matmul(torch.matmul(torch.matmul(J, W), cov_3D), torch.transpose(W, 1, 2)), torch.transpose(J, 1, 2))
 
         # Post processing to make sure that each 2D Gaussian covers atleast approximately 1 pixel
         cov_2D[:, 0, 0] += 0.3
