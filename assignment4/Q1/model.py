@@ -411,9 +411,6 @@ class Scene:
         means_camera = camera.transform_points(self.gaussians.means)
         z_vals = means_camera[:, 2]
         z_vals = 1/z_vals
-        print(f"Z vals: {z_vals}")
-        print(f"Original Shape: {z_vals.shape}")
-        print(f"Min: {z_vals.min()} | Max: {z_vals.max()}")
         return z_vals
 
     def get_idxs_to_filter_and_sort(self, z_vals: torch.Tensor):
@@ -435,7 +432,7 @@ class Scene:
         ### YOUR CODE HERE ###
         idxs = torch.argsort(z_vals)
         idxs = idxs[z_vals[idxs] >= 0]  # (N,)
-        print(f"Reduced Shapes: {idxs.shape}")
+        
         return idxs
 
     def compute_alphas(self, opacities, means_2D, cov_2D, img_size):
