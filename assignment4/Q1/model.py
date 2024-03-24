@@ -114,7 +114,7 @@ class Gaussians:
         data["colours"] = torch.rand((len(means), 3), dtype=torch.float32)  # (N, 3)
 
         # Initializing quaternions to be the identity quaternion
-        quats = torch.ones((len(means), 4), dtype=torch.float32)  # (N, 4)
+        quats = torch.zeros((len(means), 4), dtype=torch.float32)  # (N, 4)
         quats[:, 0] = 1.0
         data["pre_act_quats"] = quats  # (N, 4)
 
@@ -142,7 +142,7 @@ class Gaussians:
         data["colours"] = torch.rand((num_points, 3), dtype=torch.float32)  # (N, 3)
 
         # Initializing quaternions to be the identity quaternion
-        quats = torch.ones((num_points, 4), dtype=torch.float32)  # (N, 4)
+        quats = torch.zeros((num_points, 4), dtype=torch.float32)  # (N, 4)
         quats[:, 0] = 1.0
         data["pre_act_quats"] = quats  # (N, 4)
 
@@ -239,19 +239,18 @@ class Gaussians:
         # Based on your answers, can you write a more efficient code for the isotropic case?
         scales.to(self.device)
         if self.is_isotropic:
-            print("Isotropic!")
+            #print("Isotropic!")
             # Convert scales from (N, 1) to (N, 3) for isotropic case
             scales = scales.repeat(1, 3)  # (N, 3)
         # HINT: You can use a function from pytorch3d to convert quaternions to rotation matrices.
-        else:
-            print("Not Isotropic!")
+            # print("Not Isotropic!")
         
         S = torch.diag_embed(scales).to(self.device)
         R = quaternion_to_matrix(quats).to(self.device)  # (N, 3, 3)
-        print(f"R Shape: {R.shape}\n{R}")
-        print(f"S Shape: {S.shape}\n{S}")
+        # print(f"R Shape: {R.shape}\n{R}")
+        # print(f"S Shape: {S.shape}\n{S}")
         cov_3D = torch.matmul(torch.matmul(torch.matmul(R, S), torch.transpose(S, 1, 2)), torch.transpose(R, 1, 2))
-        print(cov_3D)
+        # print(cov_3D)
         return cov_3D
 
     def compute_cov_2D(
@@ -317,7 +316,9 @@ class Gaussians:
         ### YOUR CODE HERE ###
         # HINT: Do note that means_2D have units of pixels. Hence, you must apply a
         # transformation that moves points in the world space to screen space.
-        means_2D = torch.matmul(camera.transform_points_screen(means_3D), camera.R)  # (N, 2)
+        projected_points = camera.transform_points_screen(means_3D)
+        means_2D = projected_points[:, :2]  # (N, 2)
+
         return means_2D
 
     @staticmethod
@@ -365,8 +366,10 @@ class Gaussians:
         """
         ### YOUR CODE HERE ###
         # HINT: Refer to README for a relevant equation
-        power = torch.exp(-0.5 * torch.einsum('nij,bij->bn', cov_2D_inverse, (points_2D - means_2D)[:, None])) # (N, H*W)
-
+        diff = points_2D - means_2D
+        
+        # Compute the quadratic form (exponent) of the Gaussian
+        power = -0.5 * torch.einsum("nij,njk,nik->ni", diff, cov_2D_inverse, diff)
         return power
 
     @staticmethod
@@ -474,7 +477,7 @@ class Scene:
 
         ### YOUR CODE HERE ###
         # HINT: Refer to README for a relevant equation.
-        alphas = opacities * exp_power  # (N, H*W)
+        alphas = opacities.unsqueeze(1) * exp_power  # (N, H*W)
         alphas = torch.reshape(alphas, (-1, H, W))  # (N, H, W)
 
         # Post processing for numerical stability
@@ -527,7 +530,7 @@ class Scene:
         ### YOUR CODE HERE ###
         # HINT: Refer to README for a relevant equation.
         transmittance = torch.cumprod(one_minus_alphas, dim=0)  # (N, H, W)  # (N, H, W)
-
+        transmittance = transmittance[:-1]  # (N, H, W)
         # Post processing for numerical stability
         transmittance = torch.where(transmittance < 1e-4, 0.0, transmittance)  # (N, H, W)
 
@@ -601,10 +604,15 @@ class Scene:
         transmittance = transmittance[..., None]  # (N, H, W, 1)
 
         # Step 4: Create image, depth and mask by computing the colours for each pixel.
-
+        #print(f"Colours: {colours.shape}")
+        #print(f"Aplhas: {alphas.shape}")
+        #print(f"Z: {z_vals.shape}")
+        #print(f"Transmit: {transmittance.shape}")
         ### YOUR CODE HERE ###
         # HINT: Refer to README for a relevant equation
-        image = torch.sum(colours * alphas * transmittance, dim=0)
+        image = colours* alphas* transmittance
+        #print(image.shape)
+        image = torch.sum(image, dim=0)
 
         ### YOUR CODE HERE ###
         # HINT: Can you implement an equation inspired by the equation for colour?
