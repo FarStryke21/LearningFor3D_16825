@@ -240,14 +240,14 @@ class Gaussians:
         scales.to(self.device)
         if self.is_isotropic:
             print("Isotropic!")
-            S = scales.unsqueeze(2).repeat(1, 1, 3).transpose(1,2) # (N, 3, 3)
-            R = quaternion_to_matrix(quats).to(self.device)  # (N, 3, 3)
+            # Convert scales from (N, 1) to (N, 3) for isotropic case
+            scales = scales.repeat(1, 3)  # (N, 3)
         # HINT: You can use a function from pytorch3d to convert quaternions to rotation matrices.
         else:
             print("Not Isotropic!")
-            R = quaternion_to_matrix(quats).to(self.device)  # (N, 3, 3)
-            S = scales.unsqueeze(1).transpose(1,2) # (N, 3, 3)
         
+        S = torch.diag_embed(scales).to(self.device)
+        R = quaternion_to_matrix(quats).to(self.device)  # (N, 3, 3)
         print(f"R Shape: {R.shape}\n{R}")
         print(f"S Shape: {S.shape}\n{S}")
         cov_3D = torch.matmul(torch.matmul(torch.matmul(R, S), torch.transpose(S, 1, 2)), torch.transpose(R, 1, 2))
