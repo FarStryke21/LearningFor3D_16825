@@ -410,7 +410,9 @@ class Scene:
         # Transform the z component into camera coordinates
         means_camera = camera.transform_points(self.gaussians.means)
         z_vals = means_camera[:, 2]
-
+        print(f"Z vals: {z_vals}")
+        print(f"Original Shape: {z_vals.shape}")
+        print(f"Min: {z_vals.min()} | Max: {z_vals.max()}")
         return z_vals
 
     def get_idxs_to_filter_and_sort(self, z_vals: torch.Tensor):
@@ -432,6 +434,7 @@ class Scene:
         ### YOUR CODE HERE ###
         idxs = torch.argsort(z_vals)
         idxs = idxs[z_vals[idxs] >= 0]  # (N,)
+        print(f"Reduced Shapes: {idxs.shape}")
         return idxs
 
     def compute_alphas(self, opacities, means_2D, cov_2D, img_size):
@@ -616,6 +619,7 @@ class Scene:
 
         ### YOUR CODE HERE ###
         # HINT: Can you implement an equation inspired by the equation for colour?
+        z_vals = (z_vals - torch.min(z_vals)) / (torch.max(z_vals) - torch.min(z_vals))
         depth = torch.sum(z_vals * alphas * transmittance, dim=0)   # (H, W, 1)
 
         ### YOUR CODE HERE ###
