@@ -15,7 +15,7 @@ def create_renders(args):
     dim = args.img_dim
     img_size = (dim, dim)
 
-    num_views = 3
+    num_views = 1
     azims = np.linspace(-180, 180, num_views)
 
     debug_root = os.path.join(args.out_path, "q1_render")
