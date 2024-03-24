@@ -239,12 +239,14 @@ class Gaussians:
         # Based on your answers, can you write a more efficient code for the isotropic case?
         scales.to(self.device)
         if self.is_isotropic:
-            cov_3D = torch.eye(3).unsqueeze(0).repeat(len(scales), 1, 1).to(self.device) * scales.unsqueeze(-1)
-
+            S = torch.diag_embed(scales.squeeze(-1)).to(self.device)  # (N, 3, 3)
+            R = torch.eye(3).unsqueeze(0).repeat(len(quats), 1, 1).to(self.device)  # (N, 3, 3)
         # HINT: You can use a function from pytorch3d to convert quaternions to rotation matrices.
         else:
-            cov_3D = torch.matmul(quaternion_to_matrix(quats.to(self.device)), scales.unsqueeze(-1) * torch.eye(3).unsqueeze(0).repeat(len(scales), 1, 1).to(self.device))
-
+            R = quaternion_to_matrix(quats).to(self.device)  # (N, 3, 3)
+            S = torch.diag_embed(scales).to(self.device)  # (N, 3, 3)
+        
+        cov_3D = torch.matmul(torch.matmul(torch.matmul(R, S), S.transpose(-1, -2)), R.transpose(-1, -2))
         return cov_3D
 
     def compute_cov_2D(
@@ -276,6 +278,8 @@ class Gaussians:
         # HINT: Can you extract the world to camera rotation matrix (W) from one of the inputs
         # of this function?
         W =  camera.get_world_to_view_transform().get_matrix() # (N, 3, 3)
+        # extract the rotation matrix from the camera transformation
+        W = W[:, :3, :3]
 
         ### YOUR CODE HERE ###
         # HINT: Can you find a function in this file that can help?
