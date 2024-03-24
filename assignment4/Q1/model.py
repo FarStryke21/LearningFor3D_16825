@@ -7,6 +7,7 @@ from pytorch3d.ops.knn import knn_points
 from pytorch3d.renderer.cameras import PerspectiveCameras
 from pytorch3d.transforms import *
 from data_utils import load_gaussians_from_ply, colours_from_spherical_harmonics
+import math
 
 class Gaussians:
 
@@ -273,7 +274,7 @@ class Gaussians:
         ### YOUR CODE HERE ###
         # HINT: Can you extract the world to camera rotation matrix (W) from one of the inputs
         # of this function?
-        W = camera.get_world_to_view_transform().rotation_matrix  # (N, 3, 3)
+        W = camera.get_world_to_view_transform()[]  # (N, 3, 3)
 
         ### YOUR CODE HERE ###
         # HINT: Can you find a function in this file that can help?
@@ -306,7 +307,7 @@ class Gaussians:
         ### YOUR CODE HERE ###
         # HINT: Do note that means_2D have units of pixels. Hence, you must apply a
         # transformation that moves points in the world space to screen space.
-        means_2D = torch.matmul(camera.transform_points_screen_space(means_3D), camera.R)  # (N, 2)
+        means_2D = torch.matmul(camera.transform_points_screen(means_3D), camera.R)  # (N, 2)
         return means_2D
 
     @staticmethod
@@ -563,11 +564,11 @@ class Scene:
 
         ### YOUR CODE HERE ###
         # HINT: Can you find a function in this file that can help?
-        means_2D = self.compute_2D_gaussian_parameters(means_3D, camera)
+        means_2D = self.gaussians.compute_means_2D(means_3D, camera)
 
         ### YOUR CODE HERE ###
         # HINT: Can you find a function in this file that can help?
-        cov_2D = self.gaussians.compute_cov_2D(scales)  # (N, 2, 2)  # (N, 2, 2)
+        cov_2D = self.gaussians.compute_cov_2D(means_3D, quats, scales, camera, img_size)  # (N, 2, 2)  # (N, 2, 2)
 
         # Step 2: Compute alpha maps for each gaussian
 
