@@ -239,19 +239,18 @@ class Gaussians:
         # Based on your answers, can you write a more efficient code for the isotropic case?
         scales.to(self.device)
         if self.is_isotropic:
-            print("Isotropic!")
+            #print("Isotropic!")
             # Convert scales from (N, 1) to (N, 3) for isotropic case
             scales = scales.repeat(1, 3)  # (N, 3)
         # HINT: You can use a function from pytorch3d to convert quaternions to rotation matrices.
-        else:
-            print("Not Isotropic!")
+            # print("Not Isotropic!")
         
         S = torch.diag_embed(scales).to(self.device)
         R = quaternion_to_matrix(quats).to(self.device)  # (N, 3, 3)
-        print(f"R Shape: {R.shape}\n{R}")
-        print(f"S Shape: {S.shape}\n{S}")
+        # print(f"R Shape: {R.shape}\n{R}")
+        # print(f"S Shape: {S.shape}\n{S}")
         cov_3D = torch.matmul(torch.matmul(torch.matmul(R, S), torch.transpose(S, 1, 2)), torch.transpose(R, 1, 2))
-        print(cov_3D)
+        # print(cov_3D)
         return cov_3D
 
     def compute_cov_2D(
@@ -317,10 +316,9 @@ class Gaussians:
         ### YOUR CODE HERE ###
         # HINT: Do note that means_2D have units of pixels. Hence, you must apply a
         # transformation that moves points in the world space to screen space.
-        projected_points = camera.transform_points(means_3D)
+        projected_points = camera.transform_points_screen(means_3D)
         means_2D = projected_points[:, :2]  # (N, 2)
-        # move means_2d from world space to screen space
-        means_2D = camera.transform_points_screen(means_2D)
+
         return means_2D
 
     @staticmethod
@@ -369,10 +367,9 @@ class Gaussians:
         ### YOUR CODE HERE ###
         # HINT: Refer to README for a relevant equation
         diff = points_2D - means_2D
-
+        
         # Compute the quadratic form (exponent) of the Gaussian
-        power = -0.5 * torch.einsum("nij,njk,nik->nk", diff, cov_2D_inverse, diff)
-
+        power = -0.5 * torch.einsum("nij,njk,nik->ni", diff, cov_2D_inverse, diff)
         return power
 
     @staticmethod
@@ -413,7 +410,7 @@ class Scene:
         # Transform the z component into camera coordinates
         means_camera = camera.transform_points(self.gaussians.means)
         z_vals = means_camera[:, 2]
-
+        z_vals = 1/z_vals
         return z_vals
 
     def get_idxs_to_filter_and_sort(self, z_vals: torch.Tensor):
@@ -435,6 +432,7 @@ class Scene:
         ### YOUR CODE HERE ###
         idxs = torch.argsort(z_vals)
         idxs = idxs[z_vals[idxs] >= 0]  # (N,)
+        
         return idxs
 
     def compute_alphas(self, opacities, means_2D, cov_2D, img_size):
@@ -607,17 +605,20 @@ class Scene:
         transmittance = transmittance[..., None]  # (N, H, W, 1)
 
         # Step 4: Create image, depth and mask by computing the colours for each pixel.
-
+        #print(f"Colours: {colours.shape}")
+        #print(f"Aplhas: {alphas.shape}")
+        #print(f"Z: {z_vals.shape}")
+        #print(f"Transmit: {transmittance.shape}")
         ### YOUR CODE HERE ###
         # HINT: Refer to README for a relevant equation
-        c_expanded = colours.expand(-1, alphas.shape[1], alphas.shape[2], -1)
-        image = torch.sum(c_expanded * alphas * transmittance, dim=0)
+        image = colours* alphas* transmittance
+        #print(image.shape)
+        image = torch.sum(image, dim=0)
 
         ### YOUR CODE HERE ###
         # HINT: Can you implement an equation inspired by the equation for colour?
-        # Normalize the depth values
-        z_vals = (z_vals - torch.min(z_vals)) / (torch.max(z_vals) - torch.min(z_vals))
-        depth = torch.sum(z_vals * alphas * transmittance, dim=0)   # (H, W, 1)
+        depth = z_vals * alphas * transmittance
+        depth = torch.sum(depth, dim=0)   # (H, W, 1)
 
         ### YOUR CODE HERE ###
         # HINT: Can you implement an equation inspired by the equation for colour?
