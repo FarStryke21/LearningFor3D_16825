@@ -22,6 +22,7 @@ def make_trainable(gaussians):
     gaussians.pre_act_scales.requires_grad = True
     gaussians.colours.requires_grad = True
     gaussians.means.requires_grad = True
+    gaussians.pre_act_quats.requires_grad = True
 
 
 def setup_optimizer(gaussians):
@@ -39,6 +40,7 @@ def setup_optimizer(gaussians):
         {'params': [gaussians.pre_act_scales], 'lr': 0.01, "name": "scales"},
         {'params': [gaussians.colours], 'lr': 0.02, "name": "colours"},
         {'params': [gaussians.means], 'lr': 0.01, "name": "means"},
+        {'params': [gaussians.pre_act_quats], 'lr': 0.01, "name": "quats"}
     ]
     optimizer = torch.optim.Adam(parameters, lr=0.0, eps=1e-15)
 
@@ -122,14 +124,14 @@ def run_training(args):
         # HINT: camera is available above
         pred_img, _, _ = scene.render(
             camera=camera,
-            img_size=train_dataset.img_size,
+            img_size=(128, 128),
             bg_colour=(0.0, 0.0, 0.0),
             per_splat=args.gaussians_per_splat
         )
 
         # Compute loss
         ### YOUR CODE HERE ###
-        loss = 1 - structural_similarity(gt_img.detach().cpu().numpy(), pred_img.detach().cpu().numpy(), channel_axis=-1, data_range=1.0)
+        loss = torch.nn.functional.mse_loss(pred_img, gt_img)
 
         loss.backward()
         optimizer.step()
@@ -170,7 +172,7 @@ def run_training(args):
             # HINT: camera is available above
             pred_img, _, _ = scene.render(
                     camera=camera,
-                    img_size=train_dataset.img_size,
+                    img_size=(128, 128),
                     bg_colour=(0.0, 0.0, 0.0),
                     per_splat=args.gaussians_per_splat
                     )
@@ -200,7 +202,7 @@ def run_training(args):
             # HINT: camera is available above
             pred_img, _, _ = scene.render(
                     camera=camera,
-                    img_size=train_dataset.img_size,
+                    img_size=(128, 128),
                     bg_colour=(0.0, 0.0, 0.0),
                     per_splat=args.gaussians_per_splat
                 )
