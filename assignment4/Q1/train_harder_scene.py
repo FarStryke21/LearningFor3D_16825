@@ -40,7 +40,7 @@ def setup_optimizer(gaussians):
         {'params': [gaussians.pre_act_scales], 'lr': 0.01, "name": "scales"},
         {'params': [gaussians.colours], 'lr': 0.02, "name": "colours"},
         {'params': [gaussians.means], 'lr': 0.01, "name": "means"},
-        {'params': [gaussians.pre_act_quats], 'lr': 0.01, "name": "quats"}
+        {'params': [gaussians.pre_act_quats], 'lr': 0.02, "name": "quats"}
     ]
     optimizer = torch.optim.Adam(parameters, lr=0.0, eps=1e-15)
 
