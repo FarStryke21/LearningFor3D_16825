@@ -251,3 +251,6 @@ if __name__ == "__main__":
 
     args = get_args()
     run_training(args)
+
+# [*] Evaluation --- Mean PSNR: 23.220
+# [*] Evaluation --- Mean SSIM: 0.742
