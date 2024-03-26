@@ -152,20 +152,20 @@ class SDS:
             ### YOUR CODE HERE ###   
                 eps = torch.randn(latents.shape).to(self.device)
                 new_latent = torch.sqrt(self.alphas[t]) * latents + torch.sqrt(1 - self.alphas[t]) * eps
-                eps_hat = self.unet(new_latent, t, text_embeddings)[0]
+                eps_hat = self.unet(new_latent, t, text_embeddings).sample
 
                 if text_embeddings_uncond is not None and guidance_scale != 1:
-                    uncoditional_eps_hat = self.unet(new_latent, t, text_embeddings_uncond)[0]
+                    uncoditional_eps_hat = self.unet(new_latent, t, text_embeddings_uncond).sample
                     eps_hat = uncoditional_eps_hat + guidance_scale * (eps_hat - uncoditional_eps_hat)
                 
                 diff = eps_hat - eps
 
             # Compute SDS loss
             w = 1 - self.alphas[t]
-            gradient = grad_scale*w*diff
+            gradient = torch.nan_to_num(grad_scale*w*diff)
 
             target = latents + gradient
 
             # print(f"W Shape : {w.shape}")
-            loss = (latents - target).pow(2).sum()
+            loss = F.mse_loss(target, latents)
             return loss

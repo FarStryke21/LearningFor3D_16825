@@ -164,7 +164,7 @@ def optimize_nerf(
                 ] * (azimuth / 180)
 
             latents = sds.get_latents(embeddings["default"])
-            loss = sds.sds_loss(latents, text_cond, text_uncond, guidance_scale=args.guidance_scale)
+            loss = sds.sds_loss(latents, text_cond, text_embeddings_uncond=text_uncond)
 
             # regularizations
             if args.lambda_entropy > 0:

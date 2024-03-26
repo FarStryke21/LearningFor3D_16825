@@ -115,7 +115,7 @@ def optimize_mesh_texture(
         # Encode the rendered image to latents
         latents = sds.encode_imgs(rend)
         # Compute the loss
-        loss = sds.sds_loss(latents, embeddings['text_embeddings'], embeddings['text_embeddings_uncond'], guidance_scale=args.guidance_scale)
+        loss = sds.sds_loss(latents, embeddings['default'], text_embeddings_uncond=embeddings['uncond'])
 
         # Backward pass
         loss.backward()
