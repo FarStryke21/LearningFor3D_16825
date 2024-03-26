@@ -233,5 +233,5 @@ class SDS:
             # Compute SDS loss
             w = 1 - self.alphas[t]
             # print(f"W Shape : {w.shape}")
-            loss = grad_scale * w * F.mse_loss(noise_residual,latents)
+            loss = grad_scale * F.mse_loss(noise_residual,w*latents)
             return loss
