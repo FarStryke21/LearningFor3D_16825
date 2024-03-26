@@ -154,19 +154,19 @@ class SDS:
         noise = torch.randn(latents.shape).to(self.device)
         noisy_images = self.scheduler.add_noise(latents, noise, t)
         noise_residual = self.unet(sample = noisy_images, 
-                                    timesteps = t, 
+                                    timestep = t, 
                                     encoder_hidden_states = text_embeddings, 
                                     return_dict=False)[0]
 
         #print(noise_residual)
         if text_embeddings_uncond is not None and guidance_scale != 1:
             conditional_noise_residual = self.unet(sample = noisy_images, 
-                                                    timesteps = t, 
+                                                    timestep = t, 
                                                     encoder_hidden_states = text_embeddings, 
                                                     return_dict=False)[0]
             
             unconditional_noise_residual = self.unet(sample = noisy_images, 
-                                                        timesteps = t, 
+                                                        timestep = t, 
                                                         encoder_hidden_states = text_embeddings_uncond, 
                                                         return_dict=False)[0]
             
