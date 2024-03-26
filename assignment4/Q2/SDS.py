@@ -117,7 +117,7 @@ class SDS:
         imgs = (imgs * 255).round()  # [0, 1] => [0, 255]
         return imgs[0]
 
-    def sds_loss(
+    def sds_loss_noise(
         self,
         latents,
         text_embeddings,
@@ -180,7 +180,7 @@ class SDS:
         loss = grad_scale * w * F.mse_loss(noise_residual, noise)
         return loss
 
-    def sds_loss_new(
+    def sds_loss(
             self,
             latents,
             text_embeddings,
@@ -201,7 +201,6 @@ class SDS:
             Returns:
                 loss (tensor): SDS loss
             """
-
             # sample a timestep ~ U(0.02, 0.98) to avoid very high/low noise level
             t = torch.randint(
                 self.min_step,
@@ -212,33 +211,29 @@ class SDS:
             )
 
             # predict the noise residual with unet, NO grad!
-            # with torch.no_grad():
-            ### YOUR CODE HERE ###
-            # noise = torch.randn(latents.shape).to(self.device)
-            # noisy_images = self.scheduler.add_noise(latents, noise, t)
-            noise_residual = self.unet(sample = latents, 
-                                        timestep = t, 
-                                        encoder_hidden_states = text_embeddings, 
-                                        return_dict=False)[0]
+            with torch.no_grad():
+            ### YOUR CODE HERE ###   
+                noise_residual = self.unet(
+                    sample=latents,
+                    timestep=t,
+                    encoder_hidden_states=text_embeddings,
+                    return_dict=False,
+                )[0]
 
-            #print(noise_residual)
-            if text_embeddings_uncond is not None and guidance_scale != 1:
-                conditional_noise_residual = self.unet(sample = latents, 
-                                                        timestep = t, 
-                                                        encoder_hidden_states = text_embeddings, 
-                                                        return_dict=False)[0]
-                
-                unconditional_noise_residual = self.unet(sample = latents, 
-                                                            timestep = t, 
-                                                            encoder_hidden_states = text_embeddings_uncond, 
-                                                            return_dict=False)[0]
-                
-                noise_residual = unconditional_noise_residual + guidance_scale * (
-                    conditional_noise_residual - unconditional_noise_residual
-                )
+                if text_embeddings_uncond is not None and guidance_scale != 1:
+                    unconditional_noise_residual = self.unet(
+                        sample=latents,
+                        timestep=t,
+                        encoder_hidden_states=text_embeddings_uncond,
+                        return_dict=False,
+                    )[0]
+
+                    noise_residual = unconditional_noise_residual + guidance_scale * (
+                        noise_residual - unconditional_noise_residual   
+                    )
 
             # Compute SDS loss
             w = 1 - self.alphas[t]
             # print(f"W Shape : {w.shape}")
-            loss = grad_scale * w * noise_residual
+            loss = grad_scale * F.mse_loss(noise_residual - w*latents, latents)
             return loss
