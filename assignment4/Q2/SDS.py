@@ -217,14 +217,14 @@ class SDS:
                     sample=latents,
                     timestep=t,
                     encoder_hidden_states=text_embeddings
-                ).sample()
+                )[0]
 
                 if text_embeddings_uncond is not None and guidance_scale != 1:
                     unconditional_noise_residual = self.unet(
                         sample=latents,
                         timestep=t,
                         encoder_hidden_states=text_embeddings_uncond
-                    ).sample()
+                    )[0]
 
                     noise_residual = unconditional_noise_residual + guidance_scale * (
                         noise_residual - unconditional_noise_residual   
@@ -233,5 +233,5 @@ class SDS:
             # Compute SDS loss
             w = 1 - self.alphas[t]
             # print(f"W Shape : {w.shape}")
-            loss = grad_scale * w * F.mse_loss(noise_residual, torch.zeros_like(noise_residual))
+            loss = grad_scale * w * F.mse_loss(noise_residual,latents)
             return loss
