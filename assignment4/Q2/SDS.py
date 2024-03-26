@@ -117,7 +117,7 @@ class SDS:
         imgs = (imgs * 255).round()  # [0, 1] => [0, 255]
         return imgs[0]
 
-    def sds_loss_old(
+    def sds_loss(
         self,
         latents,
         text_embeddings,
@@ -180,7 +180,7 @@ class SDS:
         loss = grad_scale * w * F.mse_loss(noise_residual, noise)
         return loss
 
-    def sds_loss(
+    def sds_loss_new(
             self,
             latents,
             text_embeddings,
