@@ -153,12 +153,23 @@ class SDS:
             ### YOUR CODE HERE ###
             noise = torch.randn(latents.shape).to(self.device)
             noisy_images = self.scheduler.add_noise(latents, noise, t)
-            noise_residual = self.unet(noisy_images, t, text_embeddings)[0]
+            noise_residual = self.unet(sample = noisy_images, 
+                                        timesteps = t, 
+                                        encoder_hidden_states = text_embeddings, 
+                                        return_dict=False)[0]
 
             #print(noise_residual)
             if text_embeddings_uncond is not None and guidance_scale != 1:
-                conditional_noise_residual = self.unet(noisy_images, t, text_embeddings)[0]
-                unconditional_noise_residual = self.unet(noisy_images, t, text_embeddings_uncond)[0]
+                conditional_noise_residual = self.unet(sample = noisy_images, 
+                                                       timesteps = t, 
+                                                       encoder_hidden_states = text_embeddings, 
+                                                       return_dict=False)[0]
+                
+                unconditional_noise_residual = self.unet(sample = noisy_images, 
+                                                         timesteps = t, 
+                                                         encoder_hidden_states = text_embeddings_uncond, 
+                                                         return_dict=False)[0]
+                
                 noise_residual = unconditional_noise_residual + guidance_scale * (
                     conditional_noise_residual - unconditional_noise_residual
                 )
@@ -166,7 +177,5 @@ class SDS:
         # Compute SDS loss
         w = 1 - self.alphas[t]
         # print(f"W Shape : {w.shape}")
-        loss = grad_scale * w * (noise_residual - noise).pow(2).mean(dim=(1, 2, 3))
-        # print(type(loss))
-        # print(loss.shape)
+        loss = grad_scale * w * F.mse_loss(noise_residual, noise)
         return loss
