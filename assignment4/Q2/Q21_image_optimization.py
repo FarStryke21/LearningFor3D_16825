@@ -103,6 +103,6 @@ if __name__ == "__main__":
 
     # save the output image
     img = Image.fromarray(img.astype("uint8"))
-    output_path = os.path.join(output_dir, f"output.png")
+    output_path = os.path.join(output_dir, f"{prompt}_output.png")
     print(f"Saving image to {output_path}")
     img.save(output_path)
