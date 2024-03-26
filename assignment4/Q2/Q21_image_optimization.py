@@ -32,7 +32,7 @@ def optimize_an_image(
 
     # Step 3. Create optimizer and loss function
     optimizer = torch.optim.AdamW([latents], lr=1e-1, weight_decay=0)
-    total_iter = 2000
+    total_iter = 1000
     scheduler = get_cosine_schedule_with_warmup(optimizer, 100, int(total_iter * 1.5))
 
     # Step 4. Training loop to optimize the latents
