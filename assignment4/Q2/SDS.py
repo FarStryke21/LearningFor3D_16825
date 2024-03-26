@@ -151,17 +151,19 @@ class SDS:
         # predict the noise residual with unet, NO grad!
         with torch.no_grad():
             ### YOUR CODE HERE ###
-            noise_residual = self.unet(latents, t, text_embeddings)
-
+            noise_residual = self.unet(latents, t, text_embeddings)[0]
+            #print(noise_residual)
             if text_embeddings_uncond is not None and guidance_scale != 1:
-                conditional_noise_residual = self.unet(latents, t, text_embeddings_uncond)
-                unconditional_noise_residual = self.unet(latents, t, text_embeddings_uncond)
+                conditional_noise_residual = self.unet(latents, t, text_embeddings)[0]
+                unconditional_noise_residual = self.unet(latents, t, text_embeddings_uncond)[0]
                 noise_residual = unconditional_noise_residual + guidance_scale * (
                     conditional_noise_residual - unconditional_noise_residual
                 )
 
         # Compute SDS loss
         w = 1 - self.alphas[t]
-        loss = grad_scale * w * noise_residual
-
+        print(f"W Shape : {w.shape}")
+        loss = grad_scale * torch.matmul(w, noise_residual)
+        print(type(loss))
+        print(loss.shape)
         return loss
