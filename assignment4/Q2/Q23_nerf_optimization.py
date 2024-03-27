@@ -15,6 +15,7 @@ from PIL import Image
 from SDS import SDS
 from utils import prepare_embeddings, seed_everything
 
+from tqdm import tqdm
 
 def optimize_nerf(
     sds,
@@ -75,7 +76,7 @@ def optimize_nerf(
     os.makedirs(f"{sds.output_dir}/videos", exist_ok=True)
 
     max_epoch = np.ceil(args.iters / len(train_loader)).astype(np.int32)
-    for epoch in range(max_epoch):
+    for epoch in tqdm(range(max_epoch)):
         model.train()
         for data in train_loader:
             global_step += 1
