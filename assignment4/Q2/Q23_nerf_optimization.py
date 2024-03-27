@@ -77,7 +77,7 @@ def optimize_nerf(
     os.makedirs(f"{sds.output_dir}/videos", exist_ok=True)
     print("Start Training ...")
     max_epoch = np.ceil(args.iters / len(train_loader)).astype(np.int32)
-    for epoch in tqdm(range(max_epoch)):
+    for epoch in range(max_epoch):
         print(f"Epoch {epoch}")
         model.train()
         for data in train_loader:
@@ -162,11 +162,9 @@ def optimize_nerf(
             if not args.view_dep_text:
                 text_cond = embeddings["default"]
             else:
-                text_cond = embeddings["default"] * (1 - azimuth / 180) + embeddings[
-                    "right"
-                ] * (azimuth / 180)
+                pass
 
-            latents = sds.get_latents(embeddings["default"])
+            latents = sds.encode_imgs(pred_rgb)
             # YOUR CODE HERE: compute the loss
             loss = sds.sds_loss(latents, text_cond, text_embeddings_uncond=text_uncond)
 
