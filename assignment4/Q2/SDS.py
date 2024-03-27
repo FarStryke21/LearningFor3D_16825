@@ -163,11 +163,11 @@ class SDS:
 
             # Compute SDS loss
             w = 1 - self.alphas[t]
-            gradient = grad_scale * w[:, None, None, None] * diff
+            gradient = grad_scale * diff
             gradient = torch.nan_to_num(gradient)
 
-            target = latents + gradient
+            target = w * (latents + gradient)
 
             # print(f"W Shape : {w.shape}")
-            loss = 0.5*F.mse_loss(latents.float(), target, reduction='sum')/latents.shape[0]
+            loss = F.mse_loss(latents.float(), target)
             return loss
