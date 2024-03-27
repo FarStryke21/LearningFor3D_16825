@@ -94,6 +94,8 @@ def optimize_mesh_texture(
                                                 device=device
                                             )
         query_cameras.append(query_camera)
+
+    #print(query_cameras)
     # Step 4. Create optimizer training parameters
     optimizer = torch.optim.AdamW(color_field.parameters(), lr=5e-4, weight_decay=0)
     total_iter = 500
@@ -112,8 +114,10 @@ def optimize_mesh_texture(
 
         # Forward pass
         # Render a randomly sampled camera view to optimize in this iteration
-        camera = np.random.choice(query_cameras)
-        rend = renderer(mesh, cameras=camera)
+        camera = query_cameras[np.random.choice(range(0,len(query_cameras)))]
+        
+        rend = renderer(mesh, cameras=camera).squeeze(0)
+        print(rend.shape)
         # Encode the rendered image to latents
         latents = sds.encode_imgs(rend)
         # Compute the loss
