@@ -169,5 +169,5 @@ class SDS:
             target = latents + gradient
 
             # print(f"W Shape : {w.shape}")
-            loss = F.mse_loss(latents.float(), target)
+            loss = 0.5*F.mse_loss(latents.float(), target, reduction='sum')/latents.shape[0]
             return loss
