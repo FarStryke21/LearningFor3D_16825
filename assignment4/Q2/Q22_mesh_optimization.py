@@ -80,18 +80,20 @@ def optimize_mesh_texture(
     ### YOUR CODE HERE ###
     # create a list of query cameras as the training set
     # Note: to create the dataset, you can define a list of query cameras as below or randomly sample a camera pose on the fly in the training loop.
-    R, T = pytorch3d.renderer.look_at_view_transform(
-            dist=3,
-            elev=0,
-            azim=np.linspace(-180, 180, 10, endpoint=False),
-        )
-    
-    query_cameras = FoVPerspectiveCameras(
-                                            R=R,
-                                            T=T,
-                                            device=device
-                                        )
-
+    query_cameras = []
+    for azim in range(0, 360, 10):
+        R, T = pytorch3d.renderer.look_at_view_transform(
+                dist=3,
+                elev=0,
+                azim=azim,
+            )
+        
+        query_camera = FoVPerspectiveCameras(
+                                                R=R,
+                                                T=T,
+                                                device=device
+                                            )
+        query_cameras.append(query_camera)
     # Step 4. Create optimizer training parameters
     optimizer = torch.optim.AdamW(color_field.parameters(), lr=5e-4, weight_decay=0)
     total_iter = 500
