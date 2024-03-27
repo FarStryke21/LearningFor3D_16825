@@ -31,7 +31,8 @@ def optimize_nerf(
 
     # Step 1. Create text embeddings from prompt
     embeddings = prepare_embeddings(sds, prompt, neg_prompt, view_dependent=False)
-
+    print("Step 1 ...")
+    torch.cuda.empty_cache()
     # Step 2. Set up NeRF model
     model = NeRFNetwork(args).to(device)
 
@@ -48,7 +49,7 @@ def optimize_nerf(
     lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda iter: 1)
     if args.loss_scaling:
         scaler = torch.cuda.amp.GradScaler()
-
+    print("Start Dataset loading ...")
     # Step 4. Load the dataset
     train_loader = NeRFDataset(
         args,
@@ -74,13 +75,14 @@ def optimize_nerf(
     checkpoint_path = osp.join(sds.output_dir, f"nerf_checkpoint.pth")
     os.makedirs(f"{sds.output_dir}/images", exist_ok=True)
     os.makedirs(f"{sds.output_dir}/videos", exist_ok=True)
-
+    print("Start Training ...")
     max_epoch = np.ceil(args.iters / len(train_loader)).astype(np.int32)
     for epoch in tqdm(range(max_epoch)):
+        print(f"Epoch {epoch}")
         model.train()
         for data in train_loader:
             global_step += 1
-
+            print(f"Global Step: {global_step}")
             # Initialize optimizer
             optimizer.zero_grad()
             # experiment iterations ratio
@@ -338,6 +340,7 @@ if __name__ == "__main__":
     sds = SDS(sd_version="2.1", device=device, output_dir=output_dir)
 
     # optimize a NeRF model
+    print("Start Training...")
     start_time = time.time()
     optimize_nerf(sds, prompt=args.prompt, device=device, args=args)
     print(f"Optimization took {time.time() - start_time:.2f} seconds")
