@@ -164,7 +164,7 @@ class SDS:
             w = 1 - self.alphas[t]
             gradient = torch.nan_to_num(grad_scale*w*diff)
 
-            target = latents + gradient
+            target = latents - gradient
 
             # print(f"W Shape : {w.shape}")
             loss = F.mse_loss(latents, target)
