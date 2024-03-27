@@ -164,6 +164,7 @@ def optimize_nerf(
                 ] * (azimuth / 180)
 
             latents = sds.get_latents(embeddings["default"])
+            # YOUR CODE HERE: compute the loss
             loss = sds.sds_loss(latents, text_cond, text_embeddings_uncond=text_uncond)
 
             # regularizations
@@ -300,10 +301,10 @@ if __name__ == "__main__":
     ### YOUR CODE HERE ###
     # You wil need to tune the following parameters to obtain good NeRF results
     ### regularizations
-    parser.add_argument('--lambda_entropy', type=float, default=0, help="loss scale for alpha entropy")
-    parser.add_argument('--lambda_orient', type=float, default=0, help="loss scale for orientation")
+    parser.add_argument('--lambda_entropy', type=float, default=1e-2, help="loss scale for alpha entropy")
+    parser.add_argument('--lambda_orient', type=float, default=1e-2, help="loss scale for orientation")
     ### shading options
-    parser.add_argument('--latent_iter_ratio', type=float, default=0, help="training iters that only use albedo shading")
+    parser.add_argument('--latent_iter_ratio', type=float, default=0.25, help="training iters that only use albedo shading")
 
 
     parser.add_argument(
