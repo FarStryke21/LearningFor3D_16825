@@ -122,7 +122,7 @@ def optimize_mesh_texture(
         # rearrange the image to (1, C, H, W)
         rend = rend.permute(0, 3, 1, 2)
         # Resize the rendered image to the desired shape
-        print(rend.shape)
+        #print(rend.shape)
         
         # Encode the rendered image to latents
         latents = sds.encode_imgs(rend)
