@@ -29,6 +29,7 @@ def optimize_an_image(
 
     # Step 2. Initialize latents to optimize
     latents = nn.Parameter(torch.randn(1, 4, 64, 64, device=sds.device))
+    latents.requires_grad = True
 
     # Step 3. Create optimizer and loss function
     optimizer = torch.optim.AdamW([latents], lr=1e-1, weight_decay=0)
