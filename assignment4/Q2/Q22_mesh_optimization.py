@@ -116,8 +116,14 @@ def optimize_mesh_texture(
         # Render a randomly sampled camera view to optimize in this iteration
         camera = query_cameras[np.random.choice(range(0,len(query_cameras)))]
         
-        rend = renderer(mesh, cameras=camera).squeeze(0)
+        rend = renderer(mesh, cameras=camera)
+        # Drop the alpha channel
+        rend = rend[..., :3]
+        # rearrange the image to (1, C, H, W)
+        rend = rend.permute(0, 3, 1, 2)
+        # Resize the rendered image to the desired shape
         print(rend.shape)
+        
         # Encode the rendered image to latents
         latents = sds.encode_imgs(rend)
         # Compute the loss
