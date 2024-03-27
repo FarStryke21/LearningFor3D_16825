@@ -80,18 +80,17 @@ def optimize_mesh_texture(
     ### YOUR CODE HERE ###
     # create a list of query cameras as the training set
     # Note: to create the dataset, you can define a list of query cameras as below or randomly sample a camera pose on the fly in the training loop.
-    query_cameras = [
-        FoVPerspectiveCameras(
-            device=device,
-            R=look_at_view_transform(
-                dist=2.7,
-                elev=0,
-                azim=azim,
-                device=device,
-            ),
+    R, T = pytorch3d.renderer.look_at_view_transform(
+            dist=3,
+            elev=0,
+            azim=np.linspace(-180, 180, 10, endpoint=False),
         )
-        for azim in np.linspace(0, 360, 10)
-    ]
+    
+    query_cameras = FoVPerspectiveCameras(
+                                            R=R,
+                                            T=T,
+                                            device=device
+                                        )
 
     # Step 4. Create optimizer training parameters
     optimizer = torch.optim.AdamW(color_field.parameters(), lr=5e-4, weight_decay=0)
@@ -111,7 +110,8 @@ def optimize_mesh_texture(
 
         # Forward pass
         # Render a randomly sampled camera view to optimize in this iteration
-        rend = renderer(mesh, cameras=query_cameras[i % len(query_cameras)])
+        camera = np.random.choice(query_cameras)
+        rend = renderer(mesh, cameras=camera)
         # Encode the rendered image to latents
         latents = sds.encode_imgs(rend)
         # Compute the loss
@@ -148,7 +148,7 @@ def optimize_mesh_texture(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--prompt", type=str, default="a hamburger")
+    parser.add_argument("--prompt", type=str, default="zebra")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output_dir", type=str, default="output")
     parser.add_argument(
