@@ -78,11 +78,11 @@ def optimize_nerf(
     print("Start Training ...")
     max_epoch = np.ceil(args.iters / len(train_loader)).astype(np.int32)
     for epoch in range(max_epoch):
-        print(f"Epoch {epoch}")
+        #print(f"Epoch {epoch}")
         model.train()
         for data in train_loader:
             global_step += 1
-            print(f"Global Step: {global_step}")
+            #print(f"Global Step: {global_step}")
             # Initialize optimizer
             optimizer.zero_grad()
             # experiment iterations ratio
@@ -164,7 +164,7 @@ def optimize_nerf(
             else:
                 pass
 
-            latents = sds.encode_imgs(pred_rgb)
+            latents = sds.encode_imgs(torch.nn.functional.interpolate(pred_rgb, (512, 512)))
             # YOUR CODE HERE: compute the loss
             loss = sds.sds_loss(latents, text_cond, text_embeddings_uncond=text_uncond)
 
@@ -305,7 +305,7 @@ if __name__ == "__main__":
     parser.add_argument('--lambda_entropy', type=float, default=1e-2, help="loss scale for alpha entropy")
     parser.add_argument('--lambda_orient', type=float, default=1e-2, help="loss scale for orientation")
     ### shading options
-    parser.add_argument('--latent_iter_ratio', type=float, default=0.25, help="training iters that only use albedo shading")
+    parser.add_argument('--latent_iter_ratio', type=float, default=0, help="training iters that only use albedo shading")
 
 
     parser.add_argument(
