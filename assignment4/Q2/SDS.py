@@ -151,7 +151,6 @@ class SDS:
             with torch.no_grad():
             ### YOUR CODE HERE ###  
                 eps = torch.randn_like(latents).to(self.device)
-                #new_latent = torch.sqrt(self.alphas[t]) * latents + torch.sqrt(1 - self.alphas[t]) * eps
                 new_latent = self.scheduler.add_noise(latents, eps, t)
                 eps_hat = self.unet(new_latent, t, encoder_hidden_states = text_embeddings).sample
 
