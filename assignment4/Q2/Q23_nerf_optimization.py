@@ -76,8 +76,8 @@ def optimize_nerf(
     os.makedirs(f"{sds.output_dir}/images", exist_ok=True)
     os.makedirs(f"{sds.output_dir}/videos", exist_ok=True)
     max_epoch = np.ceil(args.iters / len(train_loader)).astype(np.int32)
-    print(f"Start Training ...\nMax Iter {max_epoch}")
-
+    print(f"Max Epoch: {max_epoch}")
+    print("Start Training ...")
     for epoch in range(max_epoch):
         #print(f"Epoch {epoch}")
         model.train()
@@ -264,6 +264,9 @@ def optimize_nerf(
                     preds = outputs["image"].reshape(B, H, W, 3)
                     preds_depth = outputs["depth"].reshape(B, H, W)
 
+                    preds = torch.nn.functional.interpolate(preds, (512, 512))
+                    preds_depth = torch.nn.functional.interpolate(preds_depth, (512, 512))
+
                     pred = preds[0].detach().cpu().numpy()
                     pred = (pred * 255).astype(np.uint8)
 
@@ -278,20 +281,31 @@ def optimize_nerf(
             all_preds = np.stack(all_preds, axis=0)
             all_preds_depth = np.stack(all_preds_depth, axis=0)
             # save the video
-            imageio.mimwrite(
-                os.path.join(sds.output_dir, "videos", f"rgb_ep_{epoch}.mp4"),
+            # save as gif file
+            imageio.mimsave(
+                os.path.join(sds.output_dir, "videos", f"rgb_ep_{epoch}.gif"),
                 all_preds,
                 fps=25,
-                quality=8,
-                macro_block_size=1,
             )
-            imageio.mimwrite(
-                os.path.join(sds.output_dir, "videos", f"depth_ep_{epoch}.mp4"),
+            imageio.mimsave(
+                os.path.join(sds.output_dir, "videos", f"depth_ep_{epoch}.gif"),
                 all_preds_depth,
                 fps=25,
-                quality=8,
-                macro_block_size=1,
             )
+            # imageio.mimwrite(
+            #     os.path.join(sds.output_dir, "videos", f"rgb_ep_{epoch}.mp4"),
+            #     all_preds,
+            #     fps=25,
+            #     quality=8,
+            #     macro_block_size=1,
+            # )
+            # imageio.mimwrite(
+            #     os.path.join(sds.output_dir, "videos", f"depth_ep_{epoch}.mp4"),
+            #     all_preds_depth,
+            #     fps=25,
+            #     quality=8,
+            #     macro_block_size=1,
+            # )
 
 
 if __name__ == "__main__":
