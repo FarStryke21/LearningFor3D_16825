@@ -14,7 +14,7 @@ def add_config_arguments(parser=None):
     parser.add_argument('--dataset_size_valid', type=int, default=8, help="# of frames to render in the turntable video in validation")
     parser.add_argument('--dataset_size_test', type=int, default=100, help="# of frames to render in the turntable video at test time")
     parser.add_argument('--batch_size', type=int, default=1, help="images to render per batch using NeRF")
-    parser.add_argument('--iters', type=int, default=1000, help="training iters")
+    parser.add_argument('--iters', type=int, default=10000, help="training iters")
     parser.add_argument('--exp_start_iter', type=int, default=0, help="start iter # for experiment, to calculate progressive_view and progressive_level")
     parser.add_argument('--exp_end_iter', type=int, default=10000, help="end iter # for experiment, to calculate progressive_view and progressive_level")
     parser.add_argument('--min_ambient_ratio', type=float, default=0.1, help="minimum ambient ratio to use in lambertian shading")
