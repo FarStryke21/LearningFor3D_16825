@@ -8,8 +8,8 @@ def add_config_arguments(parser=None):
     if parser is None:
         parser = argparse.ArgumentParser(description="Add configuration for NeRF optimization using SDS loss.")
 
-    parser.add_argument('--h', type=int, default=50, help="render height for NeRF in training")
-    parser.add_argument('--w', type=int, default=50, help="render width for NeRF in training")
+    parser.add_argument('--h', type=int, default=52, help="render height for NeRF in training")
+    parser.add_argument('--w', type=int, default=52, help="render width for NeRF in training")
     parser.add_argument('--dataset_size_train', type=int, default=100, help="Length of train dataset i.e. # of iterations per epoch")
     parser.add_argument('--dataset_size_valid', type=int, default=8, help="# of frames to render in the turntable video in validation")
     parser.add_argument('--dataset_size_test', type=int, default=100, help="# of frames to render in the turntable video at test time")

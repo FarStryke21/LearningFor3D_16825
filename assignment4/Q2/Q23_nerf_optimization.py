@@ -77,6 +77,7 @@ def optimize_nerf(
     max_epoch = np.ceil(args.iters / len(train_loader)).astype(np.int32)
     print(f"Max Epoch: {max_epoch}")
     print("Start Training ...")
+    torch.cuda.empty_cache()
     for epoch in range(max_epoch):
         #print(f"Epoch {epoch}")
         model.train()
