@@ -173,7 +173,7 @@ class SDS:
 
     def sds_loss(
             self,
-            latents,
+            img,
             text_embeddings,
             text_embeddings_uncond=None,
             guidance_scale=100,
@@ -193,11 +193,7 @@ class SDS:
                 loss (tensor): SDS loss
             """
             # sample a timestep ~ U(0.02, 0.98) to avoid very high/low noise level
-            img = self.decode_latents(latents)
-            img = torch.tensor(img)
-            img = img.permute(2, 0, 1)
-            img = img.unsqueeze(0)
-            print(img.shape)
+
             t = torch.randint(
                 self.min_step,
                 self.max_step + 1,

@@ -165,7 +165,8 @@ def optimize_nerf(
             else:
                 pass
 
-            latents = sds.encode_imgs(torch.nn.functional.interpolate(pred_rgb, (512, 512)))
+            # latents = sds.encode_imgs(torch.nn.functional.interpolate(pred_rgb, (512, 512)))
+            latents = pred_rgb
             # YOUR CODE HERE: compute the loss
             loss = sds.sds_loss(latents, text_cond, text_embeddings_uncond=text_uncond)
 
