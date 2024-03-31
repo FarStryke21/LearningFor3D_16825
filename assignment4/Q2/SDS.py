@@ -205,7 +205,16 @@ class SDS:
             with torch.no_grad():
             ### YOUR CODE HERE ###  
                 img = self.decode_latents(latents)
+                img = torch.tensor(img).reshape((1,512,512,3))
+                print(img.shape)
                 eps = torch.randn_like(img)
+                t = torch.randint(
+                    self.min_step,
+                    self.max_step + 1,
+                    (img.shape[0],),
+                    dtype=torch.long,
+                    device=self.device,
+                    )
                 new_latent = self.scheduler.add_noise(img, eps, t)
                 eps_hat = self.unet(img, t, encoder_hidden_states = text_embeddings).sample
 
