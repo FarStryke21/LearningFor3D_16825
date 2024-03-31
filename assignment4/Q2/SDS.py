@@ -193,11 +193,11 @@ class SDS:
                 loss (tensor): SDS loss
             """
             # sample a timestep ~ U(0.02, 0.98) to avoid very high/low noise level
-
+            latent = self.encode_imgs(img)
             t = torch.randint(
                 self.min_step,
                 self.max_step + 1,
-                (img.shape[0],),
+                (latent.shape[0],),
                 dtype=torch.long,
                 device=self.device,
                 )
@@ -205,12 +205,12 @@ class SDS:
             # predict the noise residual with unet, NO grad!
             with torch.no_grad():
             ### YOUR CODE HERE ###  
-                eps = torch.randn_like(img)
-                new_img = self.scheduler.add_noise(img, eps, t)
-                eps_hat = self.unet(new_img, t, encoder_hidden_states = text_embeddings).sample
+                eps = torch.randn_like(latent)
+                new_latent = self.scheduler.add_noise(latent, eps, t)
+                eps_hat = self.unet(new_latent, t, encoder_hidden_states = text_embeddings).sample
 
                 if text_embeddings_uncond is not None and guidance_scale != 1:
-                    uncoditional_eps_hat = self.unet(new_img, t, encoder_hidden_states =  text_embeddings_uncond).sample
+                    uncoditional_eps_hat = self.unet(new_latent, t, encoder_hidden_states =  text_embeddings_uncond).sample
                     eps_hat = uncoditional_eps_hat + guidance_scale * (eps_hat - uncoditional_eps_hat)
                 
                 diff = eps_hat - eps
@@ -222,6 +222,10 @@ class SDS:
 
             target = (img - gradient).detach()
 
+            target_img = self.decode_latents(target)
+            # convert to tensor and reshape
+            target_img = torch.tensor(target_img).permute(2, 0, 1).unsqueeze(0)
+
             # print(f"W Shape : {w.shape}")
-            loss = F.mse_loss(img.float(), target, reduction='sum')
+            loss = F.mse_loss(img.float(), target_img, reduction='sum')
             return loss
