@@ -193,7 +193,8 @@ class SDS:
                 loss (tensor): SDS loss
             """
             # sample a timestep ~ U(0.02, 0.98) to avoid very high/low noise level
-            latent = self.encode_imgs(img)
+            img_512 = torch.nn.functional.interpolate(img, (512, 512))
+            latent = self.encode_imgs(torch.nn.functional.interpolate(img_512, (512, 512)))
             t = torch.randint(
                 self.min_step,
                 self.max_step + 1,
@@ -220,12 +221,12 @@ class SDS:
             gradient = grad_scale * w[:, None, None, None] * diff
             gradient = torch.nan_to_num(gradient)
 
-            target = (img - gradient).detach()
+            target = (latent - gradient).detach()
 
             target_img = self.decode_latents(target)
             # convert to tensor and reshape
             target_img = torch.tensor(target_img).permute(2, 0, 1).unsqueeze(0)
 
             # print(f"W Shape : {w.shape}")
-            loss = F.mse_loss(img.float(), target_img, reduction='sum')
+            loss = F.mse_loss(img_512.float().to(self.device), target_img.to(self.device), reduction='sum')
             return loss
