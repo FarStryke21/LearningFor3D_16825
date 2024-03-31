@@ -117,7 +117,7 @@ class SDS:
         imgs = (imgs * 255).round()  # [0, 1] => [0, 255]
         return imgs[0]
 
-    def sds_loss(
+    def sds_loss_latents(
             self,
             latents,
             text_embeddings,
@@ -169,4 +169,59 @@ class SDS:
 
             # print(f"W Shape : {w.shape}")
             loss = F.mse_loss(latents.float(), target, reduction='sum') / latents.shape[0]
+            return loss
+
+    def sds_loss(
+            self,
+            latents,
+            text_embeddings,
+            text_embeddings_uncond=None,
+            guidance_scale=100,
+            grad_scale=1,
+        ):
+            """
+            Compute the SDS loss.
+
+            Args:
+                latents (tensor): input latents, shape [1, 4, 64, 64]
+                text_embeddings (tensor): conditional text embedding (for positive prompt), shape [1, 77, 1024]
+                text_embeddings_uncond (tensor, optional): unconditional text embedding (for negative prompt), shape [1, 77, 1024]. Defaults to None.
+                guidance_scale (int, optional): weight scaling for guidance. Defaults to 100.
+                grad_scale (int, optional): gradient scaling. Defaults to 1.
+
+            Returns:
+                loss (tensor): SDS loss
+            """
+            # sample a timestep ~ U(0.02, 0.98) to avoid very high/low noise level
+            t = torch.randint(
+                self.min_step,
+                self.max_step + 1,
+                (latents.shape[0],),
+                dtype=torch.long,
+                device=self.device,
+            )
+            
+            # predict the noise residual with unet, NO grad!
+            with torch.no_grad():
+            ### YOUR CODE HERE ###  
+                img = self.decode_latents(latents)
+                eps = torch.randn_like(img)
+                new_latent = self.scheduler.add_noise(img, eps, t)
+                eps_hat = self.unet(img, t, encoder_hidden_states = text_embeddings).sample
+
+                if text_embeddings_uncond is not None and guidance_scale != 1:
+                    uncoditional_eps_hat = self.unet(img, t, encoder_hidden_states =  text_embeddings_uncond).sample
+                    eps_hat = uncoditional_eps_hat + guidance_scale * (eps_hat - uncoditional_eps_hat)
+                
+                diff = eps_hat - eps
+
+            # Compute SDS loss
+            w = 1 - self.alphas[t]
+            gradient = grad_scale * w[:, None, None, None] * diff
+            gradient = torch.nan_to_num(gradient)
+
+            target = (img - gradient).detach()
+
+            # print(f"W Shape : {w.shape}")
+            loss = F.mse_loss(img.float(), target, reduction='sum')
             return loss
