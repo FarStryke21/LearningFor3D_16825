@@ -68,8 +68,19 @@ if __name__ == '__main__':
     test_accuracy = pred_label.eq(test_label.data).cpu().sum().item() / (test_label.size()[0])
     print ("test accuracy: {}".format(test_accuracy))
 
-    print ("Visualizing the results")
-    for idx in tqdm(range(len(test_data))):
-        viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/cls/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
-        viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/cls/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+    # print ("Visualizing the results")
+    # for idx in tqdm(range(len(test_data))):
+    #     viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/cls/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+    #     viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/cls/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+    
+    # get a list of the predicted labels which were incorrect
+    test_label = test_label.cpu().numpy()
+    pred_label = pred_label.cpu().numpy()
+
+    incorrect_labels = []
+    for i in range(len(test_label)):
+        if test_label[i] != pred_label[i]:
+            incorrect_labels.append(i)
+    
+    print("Incorrect labels: ", incorrect_labels)
 

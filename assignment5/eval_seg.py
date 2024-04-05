@@ -68,7 +68,7 @@ if __name__ == '__main__':
     print ("test accuracy: {}".format(test_accuracy))
 
     print ("Visualizing Segmentation Results")
-    for idx in tqdm(range(len(test_data))):
     # Visualize Segmentation Result (Pred VS Ground Truth)
-        viz_seg(test_data[args.i], test_label[args.i], "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
-        viz_seg(test_data[args.i], pred_label[args.i], "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+    for i in range(test_data.shape[0]):
+        viz_seg(test_data[i], test_label[i], "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
+        viz_seg(test_data[i], pred_label[i], "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
