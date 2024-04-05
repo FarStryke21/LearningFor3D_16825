@@ -69,10 +69,14 @@ if __name__ == '__main__':
 
     print ("Visualizing Segmentation Results")
     # Visualize Segmentation Result (Pred VS Ground Truth)
-    for i in range(test_data.shape[0]):
-        viz_seg(test_data[i], test_label[i], "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
-        viz_seg(test_data[i], pred_label[i], "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
+    # for i in range(test_data.shape[0]):
+    #     viz_seg(test_data[i], test_label[i], "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
+    #     viz_seg(test_data[i], pred_label[i], "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
 
+    for idx in tqdm(range(len(test_data))):
+        viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+        viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+    
     test_label = test_label.cpu().numpy()
     pred_label = pred_label.cpu().numpy()
 
@@ -82,3 +86,5 @@ if __name__ == '__main__':
             incorrect_labels.append(i)
     
     print("Incorrect labels: ", incorrect_labels)
+
+# test accuracy: 0.9028991896272285
