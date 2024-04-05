@@ -84,3 +84,5 @@ if __name__ == '__main__':
     
     print("Incorrect labels: ", incorrect_labels)
 
+# test accuracy: 0.9790136411332634
+# Incorrect labels:  [406, 618, 650, 651, 664, 670, 673, 685, 707, 708, 714, 716, 721, 726, 827, 832, 859, 864, 883, 916]
