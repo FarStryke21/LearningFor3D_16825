@@ -70,5 +70,5 @@ if __name__ == '__main__':
     print ("Visualizing Segmentation Results")
     for idx in tqdm(range(len(test_data))):
     # Visualize Segmentation Result (Pred VS Ground Truth)
-        viz_seg(test_data[args.i], test_label[args.i], "{}/seg/gt_{}.gif".format(args.output_dir, args.exp_name), args.device)
-        viz_seg(test_data[args.i], pred_label[args.i], "{}/seg/pred_{}.gif".format(args.output_dir, args.exp_name), args.device)
+        viz_seg(test_data[args.i], test_label[args.i], "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+        viz_seg(test_data[args.i], pred_label[args.i], "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
