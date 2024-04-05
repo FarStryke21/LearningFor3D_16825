@@ -8,6 +8,7 @@ from pytorch3d.renderer import (
     PointsRasterizer,
 )
 import imageio
+import numpy as np
 
 def save_checkpoint(epoch, model, args, best=False):
     if best:
