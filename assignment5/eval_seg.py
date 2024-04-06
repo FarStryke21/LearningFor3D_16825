@@ -76,10 +76,11 @@ if __name__ == '__main__':
     accuracy = []
     for idx in tqdm(range(len(test_data))):
         test_accuracy = pred_label[idx].eq(test_label[idx].data).cpu().sum().item() / (test_label[idx].reshape((-1,1)).size()[0])
-        accuracy.append(test_accuracy)
+        accuracy.append([idx, test_accuracy])
         # viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
         # viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
     
     print("Incorrect labels: ", accuracy)
+    np.savetxt("accuracy.csv", accuracy, delimiter=",")
 
 # test accuracy: 0.9028991896272285
