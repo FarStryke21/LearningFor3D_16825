@@ -14,7 +14,7 @@ def knn(x, k):
     return idx
 
 
-def knn_graph(x, k, idx=None):
+def knn_graph(x, k=10, idx=None):
     batch_size = x.size(0)
     num_points = x.size(2) #TODO: change?
     num_dims = x.size(1)
@@ -161,23 +161,23 @@ class seg_model(nn.Module):
         output: tensor of size (B, N, num_seg_classes)
         '''
         out1 = knn_graph(points)
-        out1 = F.LeakyReLU(self.bn1(self.conv1(out1)), negative_slope=0.2)
-        out1 = torch.amax(F.LeakyReLU(self.bn2(self.conv2(out1)), negative_slope=0.2), dim=-1, keepdim=False)
+        out1 = F.leaky_relu(self.bn1(self.conv1(out1)), negative_slope=0.2)
+        out1 = torch.amax(F.leaky_relu(self.bn2(self.conv2(out1)), negative_slope=0.2), dim=-1, keepdim=False)
 
         out2 = knn_graph(out1)
-        out1 = F.LeakyReLU(self.bn3(self.conv3(out1)), negative_slope=0.2)
-        out2 = torch.amax(F.LeakyReLU(self.bn4(self.conv4(out2)), negative_slope=0.2), dim=-1, keepdim=False)
+        out1 = F.leaky_relu(self.bn3(self.conv3(out1)), negative_slope=0.2)
+        out2 = torch.amax(F.leaky_relu(self.bn4(self.conv4(out2)), negative_slope=0.2), dim=-1, keepdim=False)
 
         num_points = points.size(1)
         out3 = knn_graph(out2)
-        out3 = torch.amax(F.LeakyReLU(self.bn5(self.conv5(out3)), negative_slope=0.2), dim=-1, keepdim=False)
+        out3 = torch.amax(F.leaky_relu(self.bn5(self.conv5(out3)), negative_slope=0.2), dim=-1, keepdim=False)
 
         out_comb1 = torch.cat((out1, out2, out3), dim=1)
 
         out4 = knn_graph(out_comb1)
-        out4 = torch.amax(F.LeakyReLU(self.bn6(self.conv6(out4)), negative_slope=0.2), dim=-1, keepdim=False)
+        out4 = torch.amax(F.leaky_relu(self.bn6(self.conv6(out4)), negative_slope=0.2), dim=-1, keepdim=False)
 
-        cat_vet = F.LeakyReLU(self.bn7(self.conv7(cat_vet.view(points.shape[0], -1, 1))), negative_slope=0.2)
+        cat_vet = F.leaky_relu(self.bn7(self.conv7(cat_vet.view(points.shape[0], -1, 1))), negative_slope=0.2)
 
         out_comb2 = torch.cat((out4, cat_vet), dim=1).repeat(1, 1, num_points) 
 
