@@ -2,30 +2,67 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-def knn_graph(x, k=10):
-    B, D, N = x.shape
-    print(f"x.shape: {x.shape}")
-    dists = torch.cdist(x, x)
-    print(f"dists.shape: {dists.shape}")
-    _, inds = torch.topk(dists, k=k+1, dim=1, largest=False)
-    inds = inds[:, 1:]
-    print(f"inds.shape: {inds.shape}")
-    inds += torch.arange(0, x.shape[0], device="cuda").view(-1, 1, 1)*x.shape[-1]
-    inds = inds.reshape(-1)
-    print(f"inds.shape: {inds.shape}")
-    x = x.transpose(2, 1).contiguous()
-    print(f"x.shape: {x.shape}")
-    feats = x.reshape(B*N, -1)[:, inds]
-    print(f"feats.shape: {feats.shape}")
-    feats = feats.reshape(B, N, k, D) 
-    print(f"feats.shape: {feats.shape}")
-    x = x.unsqueeze(2).repeat(1, 1, k, 1)
-    print(f"x.shape: {x.shape}")
+def knn(x, k):
 
-    feats = torch.cat((feats-x, x), dim=-1).permute(0, 3, 1, 2).contiguous()
-    print(f"feats.shape: {feats.shape}")
-    
-    return feats
+    inner = - 2* torch.bmm(x.transpose(1,2), x)
+
+    xx = torch.sum(x**2, dim=1, keepdim=True)
+    pairwise_distance = -xx - inner - xx.transpose(2, 1)
+ 
+    idx = pairwise_distance.topk(k=k, dim=-1)[1]   # (batch_size, num_points, k)
+
+    return idx
+
+
+def knn_graph(x, k, idx=None):
+    batch_size = x.size(0)
+    num_points = x.size(2) #TODO: change?
+    num_dims = x.size(1)
+    x = x.reshape(batch_size, -1, num_points).contiguous()
+
+    idx = knn(x, k=k)   # (batch_size, num_points, k)
+
+    idx_base = torch.arange(0, batch_size, device='cuda').view(-1, 1, 1)*num_points
+
+    idx = idx + idx_base
+    idx = idx.flatten()
+    x = x.transpose(1,2).contiguous()
+    # TODO: check idx size and see if any reshaping is needed
+    # TODO: check x size and see if any reshaping is needed
+    # (batch_size, num_points, num_dims)  -> (batch_size*num_points, num_dims) #   batch_size * num_points * k + range(0, batch_size*num_points)
+    feature = x.reshape(batch_size*num_points, -1)[idx, :].contiguous()
+    feature = feature.reshape(batch_size, num_points, k, num_dims).contiguous()  # B x N x K x D
+    # TODO: convert x = B x N x 1 x D to shape x = B x N x k x D (hint: repeating the elements in that dimension)
+    x = x.view(batch_size, num_points, 1, num_dims).repeat(1,1,k,1).contiguous()
+    feature = torch.cat((feature-x, x), dim=3)
+    feature = feature.permute(0,3,1,2)
+  
+    return feature
+
+# def knn_graph(x, k=10):
+#     B, D, N = x.shape
+#     print(f"x.shape: {x.shape}")
+#     dists = torch.cdist(x, x)
+#     print(f"dists.shape: {dists.shape}")
+#     _, inds = torch.topk(dists, k=k+1, dim=1, largest=False)
+#     inds = inds[:, 1:]
+#     print(f"inds.shape: {inds.shape}")
+#     inds += torch.arange(0, x.shape[0], device="cuda").view(-1, 1, 1)*x.shape[-1]
+#     inds = inds.reshape(-1)
+#     print(f"inds.shape: {inds.shape}")
+#     x = x.transpose(2, 1).contiguous()
+#     print(f"x.shape: {x.shape}")
+#     feats = x.reshape(B*N, -1)[:, inds]
+#     print(f"feats.shape: {feats.shape}")
+#     feats = feats.reshape(B, N, k, D) 
+#     print(f"feats.shape: {feats.shape}")
+#     x = x.unsqueeze(2).repeat(1, 1, k, 1)
+#     print(f"x.shape: {x.shape}")
+
+#     feats = torch.cat((feats-x, x), dim=-1).permute(0, 3, 1, 2).contiguous()
+#     print(f"feats.shape: {feats.shape}")
+
+#     return feats
 
 class cls_model(nn.Module):
     def __init__(self, num_classes=3):
