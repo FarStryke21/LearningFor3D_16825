@@ -98,20 +98,20 @@ class cls_model(nn.Module):
         output: tensor of size (B, num_classes)
         '''
         out1 = knn_graph(points)
-        out1 = torch.amax(F.LeakyReLU(self.bn1(self.conv1(out1)), negative_slope=0.2), dim=-1, keepdim=False)
+        out1 = torch.amax(F.leaky_relu(self.bn1(self.conv1(out1)), negative_slope=0.2), dim=-1, keepdim=False)
 
         out2 = knn_graph(out1)
-        out2 = torch.amax(F.LeakyReLU(self.bn2(self.conv2(out2)), negative_slope=0.2), dim=-1, keepdim=False)
+        out2 = torch.amax(F.leaky_relu(self.bn2(self.conv2(out2)), negative_slope=0.2), dim=-1, keepdim=False)
 
         out3 = knn_graph(out2)
-        out3 = torch.amax(F.LeakyReLU(self.bn3(self.conv3(out3)), negative_slope=0.2), dim=-1, keepdim=False)
+        out3 = torch.amax(F.leaky_relu(self.bn3(self.conv3(out3)), negative_slope=0.2), dim=-1, keepdim=False)
 
         out4 = knn_graph(out3)
-        out4 = torch.amax(F.LeakyReLU(self.bn4(self.conv4(out4)), negative_slope=0.2), dim=-1, keepdim=False)
+        out4 = torch.amax(F.leaky_relu(self.bn4(self.conv4(out4)), negative_slope=0.2), dim=-1, keepdim=False)
 
         out = torch.cat((out1, out2, out3, out4), dim=1)
         
-        out = torch.amax(F.LeakyReLU(self.bn5(self.conv5(out)), negative_slope=0.2), dim=-1, keepdim=False)
+        out = torch.amax(F.leaky_relu(self.bn5(self.conv5(out)), negative_slope=0.2), dim=-1, keepdim=False)
 
         out = self.fc(out)
 
