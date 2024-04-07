@@ -4,21 +4,27 @@ import torch.nn.functional as F
 
 def knn_graph(x, k=10):
     B, D, N = x.shape
-
+    print(f"x.shape: {x.shape}")
     dists = torch.cdist(x, x)
+    print(f"dists.shape: {dists.shape}")
     _, inds = torch.topk(dists, k=k+1, dim=1, largest=False)
     inds = inds[:, 1:]
-
+    print(f"inds.shape: {inds.shape}")
     inds += torch.arange(0, x.shape[0], device="cuda").view(-1, 1, 1)*x.shape[-1]
     inds = inds.reshape(-1)
-    
+    print(f"inds.shape: {inds.shape}")
     x = x.transpose(2, 1).contiguous()
+    print(f"x.shape: {x.shape}")
     feats = x.reshape(B*N, -1)[:, inds]
+    print(f"feats.shape: {feats.shape}")
     feats = feats.reshape(B, N, k, D) 
+    print(f"feats.shape: {feats.shape}")
     x = x.unsqueeze(2).repeat(1, 1, k, 1)
+    print(f"x.shape: {x.shape}")
 
     feats = torch.cat((feats-x, x), dim=-1).permute(0, 3, 1, 2).contiguous()
-
+    print(f"feats.shape: {feats.shape}")
+    
     return feats
 
 class cls_model(nn.Module):
