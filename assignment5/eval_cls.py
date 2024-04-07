@@ -74,10 +74,10 @@ if __name__ == '__main__':
     test_accuracy = pred_label.eq(test_label.data).cpu().sum().item() / (test_label.size()[0])
     print ("test accuracy: {}".format(test_accuracy))
 
-    # print ("Visualizing the results")
-    # for idx in tqdm(range(len(test_data))):
-    #     viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/cls/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
-    #     viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/cls/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+    print ("Visualizing the results")
+    for idx in tqdm(range(len(test_data))):
+        viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/cls/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+        viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/cls/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
     
     # get a list of the predicted labels which were incorrect
     test_label = test_label.cpu().numpy()
@@ -90,5 +90,9 @@ if __name__ == '__main__':
     
     print("Incorrect labels: ", incorrect_labels)
 
+# Baseline Output:
 # test accuracy: 0.9790136411332634
 # Incorrect labels:  [406, 618, 650, 651, 664, 670, 673, 685, 707, 708, 714, 716, 721, 726, 827, 832, 859, 864, 883, 916]
+
+# DGCNN Output:
+
