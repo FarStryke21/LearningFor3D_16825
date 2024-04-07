@@ -45,7 +45,10 @@ if __name__ == '__main__':
         model = cls_model().to(args.device)
     
     # Load Model Checkpoint
-    model_path = './checkpoints/cls/{}.pt'.format(args.load_checkpoint)
+    if args.use_dgcnn:
+        model_path = './checkpoints_dgcnn/cls/{}.pt'.format(args.load_checkpoint)
+    else:
+        model_path = './checkpoints/cls/{}.pt'.format(args.load_checkpoint)
     with open(model_path, 'rb') as f:
         state_dict = torch.load(f, map_location=args.device)
         model.load_state_dict(state_dict)
