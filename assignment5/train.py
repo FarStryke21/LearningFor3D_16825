@@ -3,7 +3,7 @@ import argparse
 import torch
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
-
+from tqdm import tqdm
 
 from models_dgcnn import cls_model
 # from models import cls_model, seg_model
@@ -16,8 +16,8 @@ def train(train_dataloader, model, opt, epoch, args, writer):
     model.to(args.device)
     step = epoch*len(train_dataloader)
     epoch_loss = 0
-
-    for i, batch in enumerate(train_dataloader):
+    print(f'Epoch length = {len(list(enumerate(train_dataloader)))}')
+    for i, batch in tqdm(enumerate(train_dataloader)):
         point_clouds, labels = batch
         point_clouds = point_clouds.to(args.device)
         labels = labels.to(args.device).to(torch.long)
