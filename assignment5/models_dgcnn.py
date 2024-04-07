@@ -14,7 +14,7 @@ def knn(x, k):
     return idx
 
 
-def knn_graph(x, k=10, idx=None):
+def knn_graph(x, k=3, idx=None):
     batch_size = x.size(0)
     num_points = x.size(2) #TODO: change?
     num_dims = x.size(1)
