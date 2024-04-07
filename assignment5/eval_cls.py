@@ -3,6 +3,7 @@ import argparse
 
 import torch
 from models import cls_model
+import models_dgcnn
 from utils import create_dir, viz_seg
 
 from tqdm import tqdm
@@ -25,6 +26,8 @@ def create_parser():
 
     parser.add_argument('--exp_name', type=str, default="exp", help='The name of the experiment')
 
+    parser.add_argument('--use_dgcnn', action='store_true', help='Use DGCNN for classification task', default=False)
+
     return parser
 
 
@@ -36,7 +39,10 @@ if __name__ == '__main__':
     create_dir(args.output_dir)
 
     # ------ TO DO: Initialize Model for Classification Task ------
-    model = cls_model().to(args.device)
+    if args.use_dgcnn:
+        model = models_dgcnn.cls_model().to(args.device)
+    else:
+        model = cls_model().to(args.device)
     
     # Load Model Checkpoint
     model_path = './checkpoints/cls/{}.pt'.format(args.load_checkpoint)

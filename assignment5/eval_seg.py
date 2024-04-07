@@ -3,6 +3,7 @@ import argparse
 
 import torch
 from models import seg_model
+import models_dgcnn
 from data_loader import get_data_loader
 from utils import create_dir, viz_seg
 
@@ -26,6 +27,8 @@ def create_parser():
 
     parser.add_argument('--exp_name', type=str, default="exp", help='The name of the experiment')
 
+    parser.add_argument('--use_dgcnn', action='store_true', help='Use DGCNN for segmentation task', default=False)
+
     return parser
 
 
@@ -37,7 +40,10 @@ if __name__ == '__main__':
     create_dir(args.output_dir)
 
     # ------ TO DO: Initialize Model for Segmentation Task  ------
-    model = seg_model().to(args.device)
+    if args.use_dgcnn:
+        model = models_dgcnn.seg_model().to(args.device)
+    else:
+        model = seg_model().to(args.device)
     
     # Load Model Checkpoint
     model_path = './checkpoints/seg/{}.pt'.format(args.load_checkpoint)
@@ -81,6 +87,10 @@ if __name__ == '__main__':
         # viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
     
     print("Incorrect labels: ", accuracy)
+
+    # save the accuracy to a file .csv
     np.savetxt("accuracy.csv", accuracy, delimiter=",")
 
 # test accuracy: 0.9028991896272285
+# Indexes below threshold: [26, 61, 96, 97, 225, 235, 255, 351, 605]
+# Accuracy at these indexes: [0.489, 0.5764, 0.5547, 0.5954, 0.5768, 0.4946, 0.473, 0.5385, 0.5801]

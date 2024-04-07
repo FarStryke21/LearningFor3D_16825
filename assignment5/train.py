@@ -5,6 +5,7 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
 
+import models_dgcnn
 from models import cls_model, seg_model
 from data_loader import get_data_loader
 from utils import save_checkpoint, create_dir
@@ -102,8 +103,12 @@ def main(args):
     # ------ TO DO: Initialize Model ------
     if args.task == "cls":
         model = cls_model()
-    else:
+    elif args.task == "seg":
         model = seg_model()
+    elif args.task == "cls_dgcnn":
+        model = models_dgcnn.cls_model()
+    else:
+        model = models_dgcnn.seg_model()
     
     # Load Checkpoint 
     if args.load_checkpoint:
