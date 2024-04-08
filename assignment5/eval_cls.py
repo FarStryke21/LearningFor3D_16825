@@ -62,7 +62,7 @@ if __name__ == '__main__':
     test_label = torch.from_numpy(np.load(args.test_label))
 
     # ------ TO DO: Make Prediction ------
-    batch_size = 32
+    batch_size = 4
     num_batch = (test_data.shape[0] // batch_size)+1
     pred_label = []
 
