@@ -8,6 +8,9 @@ from utils import create_dir, viz_seg
 
 from tqdm import tqdm
 
+import pytorch3d
+from data_loader import get_data_loader
+
 def create_parser():
     """Creates a parser for command-line arguments.
     """
@@ -59,8 +62,17 @@ if __name__ == '__main__':
 
     # Sample Points per Object
     ind = np.random.choice(10000,args.num_points, replace=False)
-    test_data = torch.from_numpy((np.load(args.test_data))[:,ind,:])
-    test_label = torch.from_numpy(np.load(args.test_label))
+    # test_data = torch.from_numpy((np.load(args.test_data))[:,ind,:])
+    # test_label = torch.from_numpy(np.load(args.test_label))
+
+    # --------------Rotate the data----------------
+    test_dataloader = get_data_loader(args=args, train=False)
+    rot = torch.tensor([30,0,0])
+    R = pytorch3d.transforms.euler_angles_to_matrix(rot, 'XYZ')
+    test_dataloader.dataset.data = (R @ test_dataloader.dataset.data.transpose(1, 2)).transpose(1, 2)
+
+    test_data = test_dataloader.dataset.data
+    test_label = test_dataloader.dataset.label
 
     # ------ TO DO: Make Prediction ------
     batch_size = args.batch_size
@@ -97,6 +109,14 @@ if __name__ == '__main__':
 # Baseline Output:
 # test accuracy: 0.9790136411332634
 # Incorrect labels:  [406, 618, 650, 651, 664, 670, 673, 685, 707, 708, 714, 716, 721, 726, 827, 832, 859, 864, 883, 916]
+
+# 5000 points experiment
+# test accuracy: 0.9769150052465897
+# Incorrect labels:  [406, 618, 650, 651, 663, 664, 667, 670, 673, 685, 707, 708, 714, 716, 721, 726, 827, 832, 859, 864, 883, 916]
+
+# 1000 point experiment
+# test accuracy: 0.9716684155299056
+# Incorrect labels:  [406, 618, 644, 651, 663, 664, 667, 670, 671, 673, 685, 707, 708, 714, 716, 721, 726, 787, 803, 806, 827, 832, 859, 864, 870, 883, 916]
 
 # DGCNN Output:
 # test accuracy: 0.9674711437565582
