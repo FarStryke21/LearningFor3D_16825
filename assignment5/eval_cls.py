@@ -15,7 +15,8 @@ def create_parser():
     """Creates a parser for command-line arguments.
     """
     parser = argparse.ArgumentParser()
-
+    parser.add_argument('--task', type=str, default='cls', help='The task to perform (cls or seg)')
+    parser.add_argument('--main_dir', type=str, default='./data/')
     parser.add_argument('--num_cls_class', type=int, default=3, help='The number of classes')
     parser.add_argument('--num_points', type=int, default=10000, help='The number of points per object to be included in the input data')
 
