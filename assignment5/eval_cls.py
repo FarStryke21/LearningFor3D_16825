@@ -80,8 +80,8 @@ if __name__ == '__main__':
 
     print ("Visualizing the results")
     for idx in tqdm(range(len(test_data))):
-        viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/cls/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
-        viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/cls/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+        viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/cls/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device, points=args.num_points)
+        viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/cls/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device, points=args.num_points)
     
     # get a list of the predicted labels which were incorrect
     test_label = test_label.cpu().numpy()
