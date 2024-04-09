@@ -79,14 +79,14 @@ if __name__ == '__main__':
     accuracy = []
     for idx in tqdm(range(len(test_data))):
         test_accuracy = pred_label[idx].eq(test_label[idx].data).cpu().sum().item() / (test_label[idx].reshape((-1,1)).size()[0])
-        accuracy.append([idx, test_accuracy])
-        # viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
-        # viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device)
+        accuracy.append(test_accuracy)
+        viz_seg(test_data[idx].cpu(), test_label[idx].cpu(), "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device, points = args.num_points)
+        viz_seg(test_data[idx].cpu(), pred_label[idx].cpu(), "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, idx), args.device, points = args.num_points)
     
     print("Incorrect labels: ", accuracy)
 
     # save the accuracy to a file .csv
-    np.savetxt("accuracy.csv", accuracy, delimiter=",")
+    np.savetxt(f"accuracy_{args.num_points}.csv", accuracy, delimiter=",")
 
 # test accuracy: 0.9028991896272285
 # Indexes below threshold: [26, 61, 96, 97, 225, 235, 255, 351, 605]
