@@ -29,6 +29,8 @@ def create_parser():
 
     parser.add_argument('--use_dgcnn', action='store_true', help='Use DGCNN for segmentation task', default=False)
 
+    parser.add_argument('--batch_size', type=int, default=32)
+
     return parser
 
 
@@ -60,7 +62,7 @@ if __name__ == '__main__':
     test_label = torch.from_numpy((np.load(args.test_label))[:,ind])
 
     # ------ TO DO: Make Prediction ------
-    batch_size = 16
+    batch_size = args.batch_size
     num_batch = (test_data.shape[0] // batch_size)+1
     pred_label = torch.zeros_like(test_label)
 
@@ -74,11 +76,6 @@ if __name__ == '__main__':
     print ("test accuracy: {}".format(test_accuracy))
 
     print ("Visualizing Segmentation Results")
-    # Visualize Segmentation Result (Pred VS Ground Truth)
-    # for i in range(test_data.shape[0]):
-    #     viz_seg(test_data[i], test_label[i], "{}/seg/gt_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
-    #     viz_seg(test_data[i], pred_label[i], "{}/seg/pred_{}_{}.gif".format(args.output_dir, args.exp_name, i), args.device)
-
     accuracy = []
     for idx in tqdm(range(len(test_data))):
         test_accuracy = pred_label[idx].eq(test_label[idx].data).cpu().sum().item() / (test_label[idx].reshape((-1,1)).size()[0])

@@ -27,6 +27,7 @@ def create_parser():
     parser.add_argument('--exp_name', type=str, default="exp", help='The name of the experiment')
 
     parser.add_argument('--use_dgcnn', action='store_true', help='Use DGCNN for classification task', default=False)
+    parser.add_argument('--batch_size', type=int, default=32)
 
     return parser
 
@@ -62,7 +63,7 @@ if __name__ == '__main__':
     test_label = torch.from_numpy(np.load(args.test_label))
 
     # ------ TO DO: Make Prediction ------
-    batch_size = 4
+    batch_size = args.batch_size
     num_batch = (test_data.shape[0] // batch_size)+1
     pred_label = []
 
