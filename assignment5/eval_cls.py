@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     # --------------Rotate the data----------------
     test_dataloader = get_data_loader(args=args, train=False)
-    rot = torch.tensor([30,0,0])
+    rot = torch.tensor([20,0,0])
     R = pytorch3d.transforms.euler_angles_to_matrix(rot, 'XYZ')
     test_dataloader.dataset.data = (R @ test_dataloader.dataset.data.transpose(1, 2)).transpose(1, 2)
 
