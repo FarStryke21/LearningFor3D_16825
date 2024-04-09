@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Aman Chulawala Assignment 5</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<section id="assignment-5" class="cell markdown">
+<h1>Assignment 5</h1>
+<p>Aman Chulawala</p>
+</section>
+<section id="q1-classification-model-40-points" class="cell markdown">
+<h2>Q1. Classification Model (40 points)</h2>
+</section>
+<div class="cell markdown">
+<p>Accuracy of the best model: 0.9790136411332634</p>
+</div>
+<div class="cell markdown">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Classification</th>
+<th>Ground Truth</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chair</td>
+<td><img src="data/q1/gt_exp_4.gif" alt="gt" /></td>
+<td><img src="data/q1/pred_exp_4.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Chair</td>
+<td><img src="data/q1/gt_exp_352.gif" alt="gt" /></td>
+<td><img src="data/q1/pred_exp_352.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Chair (Misclassified: Lamp)</td>
+<td><img src="data/q1/gt_exp_406.gif" alt="gt" /></td>
+<td><img src="data/q1/pred_exp_406.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Vase</td>
+<td><img src="data/q1/gt_exp_626.gif" alt="gt" /></td>
+<td><img src="data/q1/pred_exp_626.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Vase</td>
+<td><img src="data/q1/gt_exp_677.gif" alt="gt" /></td>
+<td><img src="data/q1/pred_exp_677.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Vase (Misclassified: Lamp)</td>
+<td><img src="data/q1/gt_exp_618.gif" alt="gt" /></td>
+<td><img src="data/q1/pred_exp_618.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Lamp</td>
+<td><img src="data/q1/gt_exp_763.gif" alt="gt" /></td>
+<td><img src="data/q1/pred_exp_763.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Lamp</td>
+<td><img src="data/q1/gt_exp_856.gif" alt="gt" /></td>
+<td><img src="data/q1/pred_exp_856.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Lamp (Misclassified: Vase)</td>
+<td><img src="data/q1/gt_exp_859.gif" alt="gt" /></td>
+<td><img src="data/q1/pred_exp_859.gif" alt="pred" /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell markdown">
+<p>Interpretation: The classification model performs well, providing a
+high degree of accuracy. It does fail in situation where the model
+features align too much with an incorrect class. A cylindrical shape is
+classified as a vase, and a non cylindrical not-chair like looking chair
+is classified as a chair.</p>
+</div>
+<section id="q2-segmentation-model-40-points" class="cell markdown">
+<h2>Q2. Segmentation Model (40 points)</h2>
+</section>
+<div class="cell markdown">
+<p>Accuracy of the best model: 0.9028991896272285</p>
+<p>I classified accuracy of less than 0.5 as a bad result.</p>
+</div>
+<div class="cell markdown">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Accuracy</th>
+<th>Ground Truth</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.7108</td>
+<td><img src="data/q2/gt_exp_4.gif" alt="gt" /></td>
+<td><img src="data/q2/pred_exp_4.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>0.489 (bad)</td>
+<td><img src="data/q2/gt_exp_26.gif" alt="gt" /></td>
+<td><img src="data/q2/pred_exp_26.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>0.8561</td>
+<td><img src="data/q2/gt_exp_144.gif" alt="gt" /></td>
+<td><img src="data/q2/pred_exp_144.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>0.4946 (bad)</td>
+<td><img src="data/q2/gt_exp_235.gif" alt="gt" /></td>
+<td><img src="data/q2/pred_exp_235.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>0.473 (bad)</td>
+<td><img src="data/q2/gt_exp_255.gif" alt="gt" /></td>
+<td><img src="data/q2/pred_exp_255.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>0.8712</td>
+<td><img src="data/q2/gt_exp_256.gif" alt="gt" /></td>
+<td><img src="data/q2/pred_exp_256.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>0.8346</td>
+<td><img src="data/q2/gt_exp_378.gif" alt="gt" /></td>
+<td><img src="data/q2/pred_exp_378.gif" alt="pred" /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell markdown">
+<p>Interpretation: The segmentation model performs reasonably well. The
+model learns the distinction between different areas of interest and is
+able to segment them in most cases. It does find it difficult to
+sometimes distinguish between areas which seem to have fused together,
+making distinguishing the class difficult.</p>
+</div>
+<section id="q3-robustness-analysis-20-points" class="cell markdown">
+<h2>Q3. Robustness Analysis (20 points)</h2>
+</section>
+<section id="experiment-1-changing-points-to-5000" class="cell markdown"
+data-vscode="{&quot;languageId&quot;:&quot;plaintext&quot;}">
+<h3>Experiment 1: Changing points to 5000</h3>
+</section>
+<div class="cell markdown">
+<h4 id="classification">Classification</h4>
+<p>Accuracy: 0.9769150052465897</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Classification</th>
+<th>Ground Truth</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chair</td>
+<td><img src="data/q3/points5000/cls/gt_exp_4.gif" alt="gt" /></td>
+<td><img src="data/q3/points5000/cls/pred_exp_4.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Vase</td>
+<td><img src="data/q3/points5000/cls/gt_exp_626.gif" alt="gt" /></td>
+<td><img src="data/q3/points5000/cls/pred_exp_626.gif"
+alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Lamp</td>
+<td><img src="data/q3/points5000/cls/gt_exp_763.gif" alt="gt" /></td>
+<td><img src="data/q3/points5000/cls/pred_exp_763.gif"
+alt="pred" /></td>
+</tr>
+</tbody>
+</table>
+<h4 id="segmentation">Segmentation</h4>
+<p>Accuracy: 0.9030888168557536</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Accuracy</th>
+<th>Ground Truth</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.8626</td>
+<td><img src="data/q3/points5000/seg/gt_exp_4.gif" alt="gt" /></td>
+<td><img src="data/q3/points5000/seg/pred_exp_4.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>0.8322</td>
+<td><img src="data/q3/points5000/seg/gt_exp_144.gif" alt="gt" /></td>
+<td><img src="data/q3/points5000/seg/pred_exp_144.gif"
+alt="pred" /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell markdown">
+<p>Interpretation: Accuracy slightly goes down as number of pointclouds
+decrease.</p>
+</div>
+<section id="experiment-2-changing-points-to-1000"
+class="cell markdown">
+<h3>Experiment 2: Changing points to 1000</h3>
+</section>
+<div class="cell markdown">
+<h4 id="classification">Classification</h4>
+<p>Accuracy: 0.9716684155299056</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Classification</th>
+<th>Ground Truth</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chair</td>
+<td><img src="data/q3/points1000/cls/gt_exp_4.gif" alt="gt" /></td>
+<td><img src="data/q3/points1000/cls/pred_exp_4.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Vase</td>
+<td><img src="data/q3/points1000/cls/gt_exp_626.gif" alt="gt" /></td>
+<td><img src="data/q3/points1000/cls/pred_exp_626.gif"
+alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Lamp</td>
+<td><img src="data/q3/points1000/cls/gt_exp_763.gif" alt="gt" /></td>
+<td><img src="data/q3/points1000/cls/pred_exp_763.gif"
+alt="pred" /></td>
+</tr>
+</tbody>
+</table>
+<h4 id="segmentation">Segmentation</h4>
+<p>Accuracy: 0.8995072933549433</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Accuracy</th>
+<th>Ground Truth</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.8149</td>
+<td><img src="data/q3/points1000/seg/gt_exp_4.gif" alt="gt" /></td>
+<td><img src="data/q3/points1000/seg/pred_exp_4.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>0.8449</td>
+<td><img src="data/q3/points1000/seg/gt_exp_144.gif" alt="gt" /></td>
+<td><img src="data/q3/points1000/seg/pred_exp_144.gif"
+alt="pred" /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell markdown">
+<p>Interpretation: Accuracy slightly goes down as number of pointclouds
+decrease.</p>
+</div>
+<div class="cell markdown">
+<p>It shows the classifcation and segmentation is still achievable with
+a moderate amount of pointclouds.</p>
+</div>
+<section id="experiment-3-rotate-points-by-10-degrees-along-one-axis"
+class="cell markdown">
+<h3>Experiment 3: Rotate points by 10 degrees along one axis</h3>
+</section>
+<div class="cell markdown">
+<p>Accuracy: 0.4616998950682057</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Classification</th>
+<th>Ground Truth</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chair (Misclassified: Vase)</td>
+<td><img src="data/q3/rotate10/gt_exp_4.gif" alt="gt" /></td>
+<td><img src="data/q3/rotate10/pred_exp_4.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Vase</td>
+<td><img src="data/q3/rotate10/gt_exp_626.gif" alt="gt" /></td>
+<td><img src="data/q3/rotate10/pred_exp_626.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Lamp</td>
+<td><img src="data/q3/rotate10/gt_exp_763.gif" alt="gt" /></td>
+<td><img src="data/q3/rotate10/pred_exp_763.gif" alt="pred" /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="experiment-4-rotate-points-by-30-degrees-along-one-axis"
+class="cell markdown">
+<h3>Experiment 4: Rotate points by 30 degrees along one axis</h3>
+</section>
+<div class="cell markdown">
+<p>Accuracy: 0.3462749213011542</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Classification</th>
+<th>Ground Truth</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chair (Misclassified: Vase)</td>
+<td><img src="data/q3/rotate30/gt_exp_4.gif" alt="gt" /></td>
+<td><img src="data/q3/rotate30/pred_exp_4.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Vase</td>
+<td><img src="data/q3/rotate30/gt_exp_626.gif" alt="gt" /></td>
+<td><img src="data/q3/rotate30/pred_exp_626.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Lamp (Misclassified: Vase)</td>
+<td><img src="data/q3/rotate30/gt_exp_763.gif" alt="gt" /></td>
+<td><img src="data/q3/rotate30/pred_exp_763.gif" alt="pred" /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell markdown">
+<p>Interpretation: The classification model is immune to slight
+deviation along the rotation axes, but looses performance in face of
+large disturbances.</p>
+</div>
+<section id="q4-expressive-architectures-10-points--20-bonus-points"
+class="cell markdown">
+<h2>Q4. Expressive architectures (10 points + 20 bonus points)</h2>
+</section>
+<div class="cell markdown">
+<p>Model Description:</p>
+<p>The model architecture incorporates graph convolutional operations to
+extract features from the input data, utilizing functions like knn for
+calculating k-nearest neighbors and get_graph_feature for constructing
+graph features. The cls_model class comprises convolutional and fully
+connected layers with batch normalization, LeakyReLU activation, and
+dropout, culminating in classification scores for the input point
+clouds.</p>
+<p>Check models_dgcnn.py for implementation.</p>
+</div>
+<div class="cell markdown">
+<p>Accuracy: 0.9674711437565582</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Classification</th>
+<th>Ground Truth</th>
+<th>Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chair</td>
+<td><img src="data/q4/gt_exp_101.gif" alt="gt" /></td>
+<td><img src="data/q4/pred_exp_101.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Chair</td>
+<td><img src="data/q4/gt_exp_259.gif" alt="gt" /></td>
+<td><img src="data/q4/pred_exp_259.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Chair (Misclassified: Lamp)</td>
+<td><img src="data/q4/gt_exp_445.gif" alt="gt" /></td>
+<td><img src="data/q4/pred_exp_445.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Vase</td>
+<td><img src="data/q4/gt_exp_669.gif" alt="gt" /></td>
+<td><img src="data/q4/pred_exp_669.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Vase</td>
+<td><img src="data/q4/gt_exp_684.gif" alt="gt" /></td>
+<td><img src="data/q4/pred_exp_684.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Vase (Misclassified: Lamp)</td>
+<td><img src="data/q4/gt_exp_716.gif" alt="gt" /></td>
+<td><img src="data/q4/pred_exp_716.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Lamp</td>
+<td><img src="data/q4/gt_exp_744.gif" alt="gt" /></td>
+<td><img src="data/q4/pred_exp_744.gif" alt="pred" /></td>
+</tr>
+<tr class="even">
+<td>Lamp</td>
+<td><img src="data/q4/gt_exp_756.gif" alt="gt" /></td>
+<td><img src="data/q4/pred_exp_756.gif" alt="pred" /></td>
+</tr>
+<tr class="odd">
+<td>Lamp (Misclassified: Vase)</td>
+<td><img src="data/q4/gt_exp_922.gif" alt="gt" /></td>
+<td><img src="data/q4/pred_exp_922.gif" alt="pred" /></td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>

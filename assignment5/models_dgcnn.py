@@ -1,14 +1,9 @@
-import os
-import sys
-import copy
-import math
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import pdb
 
-#SOURCE: 
 def knn(x, k):
 
     inner = - 2* torch.bmm(x.transpose(1,2), x)
@@ -34,12 +29,8 @@ def get_graph_feature(x, k, idx=None):
     idx = idx + idx_base
     idx = idx.flatten()
     x = x.transpose(1,2).contiguous()
-    # TODO: check idx size and see if any reshaping is needed
-    # TODO: check x size and see if any reshaping is needed
-    # (batch_size, num_points, num_dims)  -> (batch_size*num_points, num_dims) #   batch_size * num_points * k + range(0, batch_size*num_points)
     feature = x.reshape(batch_size*num_points, -1)[idx, :].contiguous()
     feature = feature.reshape(batch_size, num_points, k, num_dims).contiguous()  # B x N x K x D
-    # TODO: convert x = B x N x 1 x D to shape x = B x N x k x D (hint: repeating the elements in that dimension)
     x = x.view(batch_size, num_points, 1, num_dims).repeat(1,1,k,1).contiguous()
     feature = torch.cat((feature-x, x), dim=3)
     feature = feature.permute(0,3,1,2)
@@ -78,51 +69,31 @@ class cls_model(nn.Module):
         self.dp2 = nn.Dropout(p=self.dropout)
         self.linear3 = nn.Linear(256, num_classes)
 
-        # TODO: 4 Batch Norm 2D + 1 Batch Norm 1D
-        # TODO: 5 conv2D layers + BN + ReLU/Leaky ReLU
-        # TODO: 2 Linear layers + BN + Dropout
-        # TODO: 1 final Linear layer
-
     def forward(self, x):
         batch_size = x.size(0)
         x = x.permute(0,2,1)
 
         x = get_graph_feature(x, k=self.k)
-        # TODO: conv
-        # TODO: max -> x1
-        # pdb.set_trace()
         x = self.relu(self.bn1(self.conv1(x)))
         x1 = torch.max(x, dim=-1, keepdim=False)[0]
 
 
         x = get_graph_feature(x1, k=self.k)
-        # TODO: conv
-        # TODO: max -> x2
         x = self.relu(self.bn2(self.conv2(x)))
         x2 = torch.max(x, dim=-1, keepdim=False)[0]
 
         x = get_graph_feature(x2, k=self.k)
-        # TODO: conv
-        # TODO: max -> x3
         x = self.relu(self.bn3(self.conv3(x)))
         x3 = torch.max(x, dim=-1, keepdim=False)[0]
 
-
         x = get_graph_feature(x3, k=self.k)
-        # TODO: conv
-        # TODO: max -> x4
         x = self.relu(self.bn4(self.conv4(x)))
         x4 = torch.max(x, dim=-1, keepdim=False)[0]
 
-        # x = # TODO: concat all x1 to x4
-        # pdb.set_trace()
         x = torch.cat((x1,x2,x3,x4), dim=1)
 
         x = self.conv5(x)
         x = F.adaptive_max_pool1d(x, 1).view(batch_size, -1)
-        # TODO: conv
-        # TODO: pooling
-        # TODO: ReLU / Leaky ReLU
 
         x = self.linear1(x)
         x = self.bn6(x)
